@@ -1,0 +1,12 @@
+{
+  "name": "solacai",
+  "version": "1.0.0",
+  "description": "MS Skype Bot",
+  "main": "src/app.js",
+  "author": "gaconkzk",
+  "license": "MIT",
+  "dependencies": {
+    "botbuilder": "^3.9.1",
+    "restify": "^5.2.0"
+  }
+}
