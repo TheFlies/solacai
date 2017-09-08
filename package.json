@@ -5,6 +5,9 @@
   "main": "src/app.js",
   "author": "gaconkzk",
   "license": "MIT",
+  "scripts": {
+    "start": "node src/app.js"
+  },
   "dependencies": {
     "botbuilder": "^3.9.1",
     "restify": "^5.2.0"
