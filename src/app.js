@@ -18,7 +18,42 @@ var connector = new builder.ChatConnector({
 // Listen for messages from users 
 server.post('/api/messages', connector.listen());
 
-// Receive messages from the user and respond by echoing each message back (prefixed with 'You said:')
-var bot = new builder.UniversalBot(connector, function (session) {
-    session.send("You said: %s", session.message.text);
+// ok bot
+var bot = new builder.UniversalBot(connector);
+
+//Bot on
+bot.on('contactRelationUpdate', function(message) {
+    if (message.action === 'add') {
+        var name = message.user ? message.user.name : null;
+        var reply = new builder.Message()
+            .address(message.address)
+            .text("Chào anh %s... em là Ruồi", name || 'ấy');
+        bot.send(reply);
+    } else {
+        // delete their data
+    }
 });
+
+bot.on('typing', function(message) {
+    // User is typing
+});
+
+bot.dialog('/', function(session) {
+    console.log('>>> %s', session.message.text)
+    if (session.message.text.toLowerCase().contains('tét hình')) {
+        var url = 'https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png';
+        sendInternetUrl(session, url, 'image/png', 'BotFrameworkOverview.png');
+    }
+});
+
+// Sends attachment using an Internet url
+function sendInternetUrl(session, url, contentType, attachmentFileName) {
+    var msg = new builder.Message(session)
+        .addAttachment({
+            contentUrl: url,
+            contentType: contentType,
+            name: attachmentFileName
+        });
+
+    session.send(msg);
+}
