@@ -9,8 +9,9 @@
     "start": "node src/app.js"
   },
   "dependencies": {
+    "another-rest-client": "^0.3.4",
     "botbuilder": "^3.9.1",
-    "images-scraper": "^2.0.11",
-    "restify": "^5.2.0"
+    "restify": "^5.2.0",
+    "xmlhttprequest": "^1.8.0"
   }
 }

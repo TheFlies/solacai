@@ -1,8 +1,9 @@
 var restify = require('restify');
 var builder = require('botbuilder');
-var Scraper = require('images-scraper')
-, google = new Scraper.Google()
-, bing = new Scraper.Bing()
+
+global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+
+var RestClient = require('another-rest-client');
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -15,7 +16,9 @@ var connector = new builder.ChatConnector({
     // appId: process.env.MICROSOFT_APP_ID,
     // appPassword: process.env.MICROSOFT_APP_PASSWORD
     appId: "13a25d76-e2ba-455c-aef8-fc4ee079a4c2",
-    appPassword: "4gT0TdkA57nwJi5Raoaj9wM"
+    appPassword: "4gT0TdkA57nwJi5Raoaj9wM",
+    googleApiKey: "AIzaSyBjVKGXMBsr4qvlch462BJvqQ3rGxAY7Ks",
+    googleCseKey: "008528348316169879039:krj0gf7qsui"
 });
 
 // Listen for messages from users 
@@ -23,6 +26,8 @@ server.post('/api/messages', connector.listen());
 
 // ok bot
 var bot = new builder.UniversalBot(connector);
+
+var api = new RestClient('https://www.googleapis.com/customsearch/v1');
 
 //Bot on
 bot.on('contactRelationUpdate', function(message) {
@@ -49,20 +54,14 @@ bot.dialog('/', function(session) {
         // sendInternetUrl(session, url, 'image/png', 'BotFrameworkOverview.png');
         var kb = msg.split('tét hình');
         if (kb.length == 2 && kb[1]!=='tét hình') {
-            bing.list({
-                keyword: kb[1],
-                num: 3,
-                detail: true,
-                nightmare: {
-                    show: true
-                }
-            })
-            .then(function (res) {
-                var r = res[getRandomInt(0,2)]
-                console.log('first 10 results from google', res);
+            api.get({
+                q: kb[1], cx: "008528348316169879039:krj0gf7qsui", searchType: "image", fields: "items(link,mime)", key: "AIzaSyBjVKGXMBsr4qvlch462BJvqQ3rGxAY7Ks"
+            }).then(function (res) {
+                var r = res.items[getRandomInt(0,9)]
+                console.log('first 10 results from google', res.items);
                 if (r) {
-                    var url = r.url;
-                    var type = r.type || calType(r.format) || calType(url.substr(url.length - 3));
+                    var url = r.url || r.link;
+                    var type = r.type || r.mime || calType(r.format) || calType(url.substr(url.length - 3));
                     if (type != null) {
                         sendInternetUrl(session, url, type, null);
                     }
