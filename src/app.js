@@ -41,7 +41,7 @@ bot.on('typing', function(message) {
 });
 
 bot.dialog('/', function(session) {
-    var msg = session.message.text.toLowerCase
+    var msg = session.message.text.toLocaleLowerCase()
     console.log('>>> %s', msg)
     if (msg.indexOf('tét hình')>0) {
         // var url = 'https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png';
