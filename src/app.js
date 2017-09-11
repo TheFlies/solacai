@@ -41,14 +41,14 @@ bot.on('typing', function(message) {
 });
 
 bot.dialog('/', function(session) {
-    var msg = session.message.text.toLocaleLowerCase
+    var msg = session.message.text.toLowerCase
     console.log('>>> %s', msg)
     if (msg.indexOf('tét hình')>0) {
-        var url = 'https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png';
-        sendInternetUrl(session, url, 'image/png', 'BotFrameworkOverview.png');
+        // var url = 'https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png';
+        // sendInternetUrl(session, url, 'image/png', 'BotFrameworkOverview.png');
 
         var kb = msg.split('tét hình')
-        if (kb.length == 2 && kb[1]!='tét hình') {
+        if (kb.length == 2 && kb[1]!=='tét hình') {
             google.list({
                 keyword: kb[1],
                 num: 10,
