@@ -60,10 +60,12 @@ bot.dialog('/', function(session) {
             .then(function (res) {
                 var r = res[getRandomInt(0,9)]
                 console.log('first 10 results from google', res);
-                var url = r.url;
-                var type = r.type || calType(r.format) || calType(url.substr(url.length - 3));
-                if (type != null) {
-                    sendInternetUrl(session, url, type, null);
+                if (r) {
+                    var url = r.url;
+                    var type = r.type || calType(r.format) || calType(url.substr(url.length - 3));
+                    if (type != null) {
+                        sendInternetUrl(session, url, type, null);
+                    }
                 } else
                     session.send("Hong lay duoc content type");
             }).catch(function(err) {
