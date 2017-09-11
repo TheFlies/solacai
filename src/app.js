@@ -51,14 +51,14 @@ bot.dialog('/', function(session) {
         if (kb.length == 2 && kb[1]!=='tét hình') {
             google.list({
                 keyword: kb[1],
-                num: 10,
+                num: 3,
                 detail: true,
                 nightmare: {
                     show: true
                 }
             })
             .then(function (res) {
-                var r = res[getRandomInt(0,9)]
+                var r = res[getRandomInt(0,2)]
                 console.log('first 10 results from google', res);
                 if (r) {
                     var url = r.url;
