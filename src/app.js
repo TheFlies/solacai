@@ -1,7 +1,8 @@
 var restify = require('restify');
 var builder = require('botbuilder');
-var Scraper = require ('images-scraper')
-, google = new Scraper.Google();
+var Scraper = require('images-scraper')
+, google = new Scraper.Google()
+, bing = new Scraper.Bing()
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -11,10 +12,10 @@ server.listen(process.env.port || process.env.PORT || 3978, function () {
 
 // Create chat connector for communicating with the Bot Framework Service
 var connector = new builder.ChatConnector({
-    appId: process.env.MICROSOFT_APP_ID,
-    appPassword: process.env.MICROSOFT_APP_PASSWORD
-    // appId: "13a25d76-e2ba-455c-aef8-fc4ee079a4c2",
-    // appPassword: "4gT0TdkA57nwJi5Raoaj9wM"
+    // appId: process.env.MICROSOFT_APP_ID,
+    // appPassword: process.env.MICROSOFT_APP_PASSWORD
+    appId: "13a25d76-e2ba-455c-aef8-fc4ee079a4c2",
+    appPassword: "4gT0TdkA57nwJi5Raoaj9wM"
 });
 
 // Listen for messages from users 
@@ -43,13 +44,12 @@ bot.on('typing', function(message) {
 bot.dialog('/', function(session) {
     var msg = session.message.text.toLocaleLowerCase()
     console.log('>>> %s', msg)
-    if (msg.indexOf('tét hình')>0) {
+    if (msg.indexOf('tét hình')>=0) {
         // var url = 'https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png';
         // sendInternetUrl(session, url, 'image/png', 'BotFrameworkOverview.png');
-
-        var kb = msg.split('tét hình')
+        var kb = msg.split('tét hình');
         if (kb.length == 2 && kb[1]!=='tét hình') {
-            google.list({
+            bing.list({
                 keyword: kb[1],
                 num: 10,
                 detail: true,
@@ -58,13 +58,40 @@ bot.dialog('/', function(session) {
                 }
             })
             .then(function (res) {
+                var r = res[getRandomInt(0,9)]
                 console.log('first 10 results from google', res);
+                var url = r.url;
+                var type = r.type || calType(r.format) || calType(url.substr(url.length - 3));
+                if (type != null) {
+                    sendInternetUrl(session, url, type, null);
+                } else
+                    session.send("Hong lay duoc content type");
             }).catch(function(err) {
                 console.log('err', err);
             });
         }
     }
 });
+
+function calType(type) {
+    switch (type) {
+        case 'jpg':
+        case 'jpeg':
+        return 'image/jpg';
+        case 'png':
+        return 'image/png';
+        default:
+        return null
+    }
+}
+
+/**
+ * Returns a random integer between min (inclusive) and max (inclusive)
+ * Using Math.round() will give you a non-uniform distribution!
+ */
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 // Sends attachment using an Internet url
 function sendInternetUrl(session, url, contentType, attachmentFileName) {
