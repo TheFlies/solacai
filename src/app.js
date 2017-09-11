@@ -49,7 +49,7 @@ bot.dialog('/', function(session) {
         // sendInternetUrl(session, url, 'image/png', 'BotFrameworkOverview.png');
         var kb = msg.split('tét hình');
         if (kb.length == 2 && kb[1]!=='tét hình') {
-            google.list({
+            bing.list({
                 keyword: kb[1],
                 num: 3,
                 detail: true,
@@ -67,7 +67,7 @@ bot.dialog('/', function(session) {
                         sendInternetUrl(session, url, type, null);
                     }
                 } else
-                    session.send("Hong lay duoc content type");
+                    session.send("Hong lay duoc hình òi");
             }).catch(function(err) {
                 console.log('err', err);
             });
