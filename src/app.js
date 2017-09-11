@@ -1,5 +1,7 @@
 var restify = require('restify');
 var builder = require('botbuilder');
+var Scraper = require ('images-scraper')
+, google = new Scraper.Google();
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -43,6 +45,23 @@ bot.dialog('/', function(session) {
     if (session.message.text.toLowerCase().indexOf('tét hình')>0) {
         var url = 'https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png';
         sendInternetUrl(session, url, 'image/png', 'BotFrameworkOverview.png');
+
+        var kb = session.split('tét hình')
+        if (kb.length == 2 && kb[1]!='tét hình') {
+            google.list({
+                keyword: kb[1],
+                num: 10,
+                detail: true,
+                nightmare: {
+                    show: true
+                }
+            })
+            .then(function (res) {
+                console.log('first 10 results from google', res);
+            }).catch(function(err) {
+                console.log('err', err);
+            });
+        }
     }
 });
 

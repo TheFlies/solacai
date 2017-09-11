@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "botbuilder": "^3.9.1",
+    "images-scraper": "^2.0.11",
     "restify": "^5.2.0"
   }
 }
