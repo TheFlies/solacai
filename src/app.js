@@ -40,7 +40,7 @@ bot.on('typing', function(message) {
 
 bot.dialog('/', function(session) {
     console.log('>>> %s', session.message.text)
-    if (session.message.text.toLowerCase().contains('tét hình')) {
+    if (session.message.text.toLowerCase().indexOf('tét hình')>0) {
         var url = 'https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png';
         sendInternetUrl(session, url, 'image/png', 'BotFrameworkOverview.png');
     }
