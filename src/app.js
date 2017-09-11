@@ -49,7 +49,7 @@ bot.dialog('/', function(session) {
         // sendInternetUrl(session, url, 'image/png', 'BotFrameworkOverview.png');
         var kb = msg.split('tét hình');
         if (kb.length == 2 && kb[1]!=='tét hình') {
-            bing.list({
+            google.list({
                 keyword: kb[1],
                 num: 10,
                 detail: true,
