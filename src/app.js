@@ -76,8 +76,6 @@ bot.dialog('/', function (session) {
   var msg = session.message.text.toLocaleLowerCase().replace("@ruồi sờ là cai", "").trim()
   console.log('>>> %s', msg)
   if (msg.indexOf('tét hình') >= 0) {
-    // var url = 'https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png';
-    // sendInternetUrl(session, url, 'image/png', 'BotFrameworkOverview.png');
     session.send("đi kiếm hình là đi kiếm hình");
     var kb = msg.split('tét hình');
     if (kb.length >= 2 && kb[1].trim().length > 0) {
@@ -174,12 +172,10 @@ function getResponseMsg(intents) {
       }
     }
   }
-  console.log("first intent having confidence "+msg)
   return msg;
 }
 
 function pickRan(dic) {
   var rnum = getRandomInt(0, dic.length - 1);
-  console.log(rnum)
   return dic[rnum] || dic[0];
 }
