@@ -47,13 +47,13 @@ bot.on('typing', function(message) {
 });
 
 bot.dialog('/', function(session) {
-    var msg = session.message.text.toLocaleLowerCase()
+    var msg = session.message.text.toLocaleLowerCase().replace("@ruồi sờ là cai","").trim()
     console.log('>>> %s', msg)
     if (msg.indexOf('tét hình')>=0) {
         // var url = 'https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png';
         // sendInternetUrl(session, url, 'image/png', 'BotFrameworkOverview.png');
         var kb = msg.split('tét hình');
-        if (kb.length == 2 && kb[1].trim.length>0) {
+        if (kb.length >= 2 && kb[1].trim.length>0) {
             api.get({
                 q: kb[1].trim, cx: "008528348316169879039:krj0gf7qsui", searchType: "image", fields: "items(link,mime)", key: "AIzaSyBjVKGXMBsr4qvlch462BJvqQ3rGxAY7Ks"
             }).then(function (res) {
