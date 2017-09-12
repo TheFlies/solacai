@@ -36,7 +36,7 @@ var witToken = {
 var drinkLocation = [
   "La Cà - Ngô Thị Thu Minh ố ô ỳe ye",
   "La Cà - Đường Phố - Hoàng Sa - Bờ kè thoáng mát hợp vệ sinh ngon lắm anh êy",
-  "1B - Thích Quảng Đức Bưởi da trắng, đùi thon eo nở (heart)",
+  "1B - Thích Quảng Đức Bưởi da trắng, Cam Đào Mận Xoài đủ cả (heart)",
   "Nhậu thì ra 45 - Phan Đăng Lưu, thơm mũi mát mắt nha mấy anh"
 ];
 
@@ -45,6 +45,13 @@ var swearMe = [
   "em vô tội",
   "ngon nhào vô đi!",
   "cám ơn, anh cũng vậy"
+];
+
+var confuse = [
+  "xin lỗi, em bị ngu",
+  "tôi không có nhà, vui lòng thử lại sau",
+  "quán nay đóng cửa vài phút, lát ghé nha",
+  "đừng chọc em"
 ];
 
 // Listen for messages from users 
@@ -114,7 +121,7 @@ bot.dialog('/', function (session) {
         console.log("Res:" + JSON.stringify(res));
         var intents = res.entities.drink || res.entities.swear || res.entities.find || null;
         var query = res.entities.query || null;
-        var resMsg = getResponseMsg(intents, query, session) || "xin lỗi, em bị ngu.";
+        var resMsg = getResponseMsg(intents, query, session) || pickRan(confuse);
 
         if (resMsg && !res.entities.find) session.send(resMsg);
       })
