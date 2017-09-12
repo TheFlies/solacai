@@ -5,6 +5,8 @@ global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 
 var RestClient = require('another-rest-client');
 
+var Wit = require('node-wit').Wit
+
 // Setup Restify Server
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
@@ -16,10 +18,19 @@ var connector = new builder.ChatConnector({
     // appId: process.env.MICROSOFT_APP_ID,
     // appPassword: process.env.MICROSOFT_APP_PASSWORD
     appId: "13a25d76-e2ba-455c-aef8-fc4ee079a4c2",
-    appPassword: "4gT0TdkA57nwJi5Raoaj9wM",
-    googleApiKey: "AIzaSyBjVKGXMBsr4qvlch462BJvqQ3rGxAY7Ks",
-    googleCseKey: "008528348316169879039:krj0gf7qsui"
+    appPassword: "4gT0TdkA57nwJi5Raoaj9wM"
 });
+
+var googleApiToken = {
+  ApiKey: "AIzaSyBjVKGXMBsr4qvlch462BJvqQ3rGxAY7Ks",
+  CseKey: "008528348316169879039:krj0gf7qsui"
+};
+
+var witToken = {
+  server: "FQXPSSZR3AOFSDEBGSZR7WPHF2O4DZ2H",
+  appid: "59b77e9e-227c-4d0f-80e3-25c5f7f74c65"
+}
+
 
 // Listen for messages from users 
 server.post('/api/messages', connector.listen());
@@ -28,6 +39,10 @@ server.post('/api/messages', connector.listen());
 var bot = new builder.UniversalBot(connector);
 
 var api = new RestClient('https://www.googleapis.com/customsearch/v1');
+
+var witClient = new Wit({
+  accessToken: witToken.server
+})
 
 //Bot on
 bot.on('contactRelationUpdate', function(message) {
@@ -56,7 +71,8 @@ bot.dialog('/', function(session) {
         var kb = msg.split('tét hình');
         if (kb.length >= 2 && kb[1].trim().length>0) {
             api.get({
-                q: kb[1].trim(), cx: "008528348316169879039:krj0gf7qsui", searchType: "image", fields: "items(link,mime)", key: "AIzaSyBjVKGXMBsr4qvlch462BJvqQ3rGxAY7Ks"
+                q: kb[1].trim(), cx: googleApiToken.CseKey, searchType: "image", fields: "items(link,mime)", 
+                key: googleApiToken.ApiKey
             }).then(function (res) {
               if (res && res.items && res.items.length>9) {
                 var r = res.items[getRandomInt(0,9)]
@@ -79,7 +95,13 @@ bot.dialog('/', function(session) {
           session.send("code lỗi rồi");
         }
     } else {
-      session.send("em bị ngu, đừng phá em");
+      witClient.message(msg, {})
+      .then(function(res) {
+        console.log("Res:"+JSON.stringify(res));
+        var resMsg = getResponseMsg(res.entities.intent);
+        session.send(resMsg);
+      })
+      .catch(function(err) {session.send("em bị ngu, đừng phá em");})
     }
 });
 
@@ -113,4 +135,33 @@ function sendInternetUrl(session, url, contentType, attachmentFileName) {
         });
 
     session.send(msg);
+}
+
+function getResponseMsg(intents) {
+  // get first intent having confidence 1
+  var i = 0;
+  while (intents[i] && !intents[i].confidence) {
+    console.log(JSON.stringify(intents[i]));
+    i++;
+  }
+  console.log(JSON.stringify(intents[i]));
+  if (i<intents.length) {
+    switch (intents[i].value) {
+      case "drink.location": return pickDrinkLocation();
+      default: return "Em bị ngu, đừng phá em." + intents[i].value;
+    }
+  } else {
+    return "Ủa ngu thiệt";
+  }
+}
+
+var drinkLocation = [
+  "La Cà - Ngô Thị Thu Minh ố ô ỳe ye",
+  "La Cà - Đường Phố - Hoàng Sa - Bờ kè thoáng mát hợp vệ sinh ngon lắm anh êy",
+  "1B - Thích Quảng Đức Bưởi da trắng, đùi thon eo nở (heart)",
+  "Nhậu thì ra 45 - Phan Đăng Lưu, thơm mũi mát mắt nha mấy anh"
+];
+
+function pickDrinkLocation() {
+  return drinkLocation[getRandomInt(0,3)];
 }
