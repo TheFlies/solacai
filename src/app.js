@@ -115,8 +115,8 @@ bot.dialog('/', function (session) {
 
         session.send(resMsg);
       })
-      .catch(function (err) { 
-        session.send("em bị ngu, đừng phá em. "+ JSON.stringify(err)); 
+      .catch(function (err) {
+        session.send("em bị ngu, đừng phá em. "+ JSON.stringify(err));
       })
   }
 });
