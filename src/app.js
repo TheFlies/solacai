@@ -52,6 +52,7 @@ bot.dialog('/', function(session) {
     if (msg.indexOf('tét hình')>=0) {
         // var url = 'https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png';
         // sendInternetUrl(session, url, 'image/png', 'BotFrameworkOverview.png');
+        session.send("đi kiếm hình là đi kiếm hình");
         var kb = msg.split('tét hình');
         if (kb.length >= 2 && kb[1].trim.length>0) {
             api.get({
@@ -68,11 +69,15 @@ bot.dialog('/', function(session) {
                     }
                 } else
                     session.send("Hong lay duoc hình òi");
-            } else { session.send("Hết quota rồi anh ới...");}}).catch(function(err) {
+            } else { 
+              session.send("Hết quota rồi anh ới...");
+            }}).catch(function(err) {
                 console.log('err', err);
                 session.send("Lỗi này rồi: ", err);
             });
         }
+    } else {
+      session.send("em bị ngu, đừng phá em");
     }
 });
 
