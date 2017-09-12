@@ -53,10 +53,11 @@ bot.dialog('/', function(session) {
         // var url = 'https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png';
         // sendInternetUrl(session, url, 'image/png', 'BotFrameworkOverview.png');
         var kb = msg.split('tét hình');
-        if (kb.length == 2 && kb[1]!=='tét hình') {
+        if (kb.length == 2 && kb[1].trim.length>0) {
             api.get({
-                q: kb[1], cx: "008528348316169879039:krj0gf7qsui", searchType: "image", fields: "items(link,mime)", key: "AIzaSyBjVKGXMBsr4qvlch462BJvqQ3rGxAY7Ks"
+                q: kb[1].trim, cx: "008528348316169879039:krj0gf7qsui", searchType: "image", fields: "items(link,mime)", key: "AIzaSyBjVKGXMBsr4qvlch462BJvqQ3rGxAY7Ks"
             }).then(function (res) {
+              if (res && res.items && res.items.length>9) {
                 var r = res.items[getRandomInt(0,9)]
                 console.log('first 10 results from google', res.items);
                 if (r) {
@@ -67,8 +68,9 @@ bot.dialog('/', function(session) {
                     }
                 } else
                     session.send("Hong lay duoc hình òi");
-            }).catch(function(err) {
+            } else { session.send("Hết quota rồi anh ới...");}}).catch(function(err) {
                 console.log('err', err);
+                session.send("Lỗi này rồi: ", err);
             });
         }
     }
