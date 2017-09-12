@@ -108,7 +108,7 @@ bot.dialog('/', function (session) {
     witClient.message(msg, {})
       .then(function (res) {
         console.log("Res:" + JSON.stringify(res));
-        var intents = res.entities.intent || res.entities.swear || null;
+        var intents = res.entities.drink || res.entities.swear || null;
         var resMsg = getResponseMsg(intents) || "xin lỗi, em bị ngu.";
 
         console.log(">> response with: %s",resMsg)
