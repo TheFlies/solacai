@@ -22,11 +22,15 @@ var connector = new builder.ChatConnector({
 });
 
 var googleApiToken = {
+  // ApiKey: process.env.GOOGLE_API_KEY,
+  // CseKey: process.env.GOOGLE_CUSTOM_SEARCH_ENGINE_ID
   ApiKey: "AIzaSyBjVKGXMBsr4qvlch462BJvqQ3rGxAY7Ks",
   CseKey: "008528348316169879039:krj0gf7qsui"
 };
 
 var witToken = {
+  // server: process.env.WIT_SERVER_ACCESS_TOKEN,
+  // appid: process.env.WIT_APP_ID,
   server: "FQXPSSZR3AOFSDEBGSZR7WPHF2O4DZ2H",
   appid: "59b77e9e-227c-4d0f-80e3-25c5f7f74c65"
 }
@@ -75,6 +79,7 @@ bot.on('typing', function (message) {
 });
 
 bot.dialog('/', function (session) {
+  console.log(">>> user is %s", session.message.user)
   var msg = session.message.text.toLocaleLowerCase().replace("@ruồi sờ là cai", "").trim()
   console.log('>>> %s', msg)
   if (msg.indexOf('tét hình') >= 0) {
