@@ -112,12 +112,11 @@ bot.dialog('/', function (session) {
     witClient.message(msg, {})
       .then(function (res) {
         console.log("Res:" + JSON.stringify(res));
-        var intents = res.entities.drink || res.entities.swear || null;
-        var resMsg = getResponseMsg(intents) || "xin lỗi, em bị ngu.";
+        var intents = res.entities.drink || res.entities.swear || res.entities.find || null;
+        var query = res.entities.query || null;
+        var resMsg = getResponseMsg(intents, query, session) || "xin lỗi, em bị ngu.";
 
-        console.log(">> response with: %s",resMsg)
-
-        session.send(resMsg);
+        if (resMsg && !res.entities.find) session.send(resMsg);
       })
       .catch(function (err) {
         session.send("em bị ngu, đừng phá em. "+ JSON.stringify(err));
@@ -145,7 +144,7 @@ function sendInternetUrl(session, url, contentType, attachmentFileName) {
   session.send(msg);
 }
 
-function getResponseMsg(intents) {
+function getResponseMsg(intents, query, session) {
   var msg = null;
   if (intents && intents.length>0) {
     console.log("get first intent having confidence")
@@ -159,6 +158,31 @@ function getResponseMsg(intents) {
         case "drink.location": msg = pickRan(drinkLocation);
         break;
         case "swear.me": msg = pickRan(swearMe);
+        break;
+        case "find.image": if (query && query[0].confidence>=0.9) {
+          api.get({
+            q: query[0].value, cx: googleApiToken.CseKey, searchType: "image", fields: "items(link,mime)",
+            key: googleApiToken.ApiKey
+          }).then(function (res) {
+            if (res && res.items && res.items.length > 9) {
+              var r = res.items[getRandomInt(0, 9)]
+              console.log('first 10 results from google', res.items);
+              if (r) {
+                var url = r.link;
+                var type = r.mime;
+                if (type != null) {
+                  sendInternetUrl(session, url, type, null);
+                }
+              } else
+                session.send("Hong lay duoc hình òi");
+            } else {
+              session.send("Hết quota rồi anh ới...");
+            }
+          }).catch(function (err) {
+            console.log('err', err);
+            session.send("Lỗi này rồi: ", err);
+          });
+        }
         break;
         default: break;
       }
