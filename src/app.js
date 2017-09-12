@@ -147,7 +147,8 @@ function getResponseMsg(intents) {
   console.log(JSON.stringify(intents[i]));
   if (i<intents.length) {
     switch (intents[i].value) {
-      case "drink.location": return pickDrinkLocation();
+      case "drink.location": return pickRan(drinkLocation);
+      case "swear.me": return pickRan(swearMe);
       default: return "Em bị ngu, đừng phá em." + intents[i].value;
     }
   } else {
@@ -162,6 +163,13 @@ var drinkLocation = [
   "Nhậu thì ra 45 - Phan Đăng Lưu, thơm mũi mát mắt nha mấy anh"
 ];
 
-function pickDrinkLocation() {
-  return drinkLocation[getRandomInt(0,3)];
+var swearMe = [
+  "sao anh chửi em?",
+  "em vô tội",
+  "ngon nhào vô đi!",
+  "cám ơn, anh cũng vậy"
+];
+
+function pickDrinkLocation(dic) {
+  return dic[getRandomInt(0,dic.length-1)];
 }
