@@ -54,9 +54,9 @@ bot.dialog('/', function(session) {
         // sendInternetUrl(session, url, 'image/png', 'BotFrameworkOverview.png');
         session.send("đi kiếm hình là đi kiếm hình");
         var kb = msg.split('tét hình');
-        if (kb.length >= 2 && kb[1].trim.length>0) {
+        if (kb.length >= 2 && kb[1].trim().length>0) {
             api.get({
-                q: kb[1].trim, cx: "008528348316169879039:krj0gf7qsui", searchType: "image", fields: "items(link,mime)", key: "AIzaSyBjVKGXMBsr4qvlch462BJvqQ3rGxAY7Ks"
+                q: kb[1].trim(), cx: "008528348316169879039:krj0gf7qsui", searchType: "image", fields: "items(link,mime)", key: "AIzaSyBjVKGXMBsr4qvlch462BJvqQ3rGxAY7Ks"
             }).then(function (res) {
               if (res && res.items && res.items.length>9) {
                 var r = res.items[getRandomInt(0,9)]
@@ -75,6 +75,8 @@ bot.dialog('/', function(session) {
                 console.log('err', err);
                 session.send("Lỗi này rồi: ", err);
             });
+        } else {
+          session.send("code lỗi rồi");
         }
     } else {
       session.send("em bị ngu, đừng phá em");
