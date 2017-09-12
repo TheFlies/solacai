@@ -87,8 +87,8 @@ bot.dialog('/', function (session) {
           var r = res.items[getRandomInt(0, 9)]
           console.log('first 10 results from google', res.items);
           if (r) {
-            var url = r.url || r.link;
-            var type = r.type || r.mime || calType(r.format) || calType(url.substr(url.length - 3));
+            var url = r.link;
+            var type = r.mime;
             if (type != null) {
               sendInternetUrl(session, url, type, null);
             }
@@ -120,18 +120,6 @@ bot.dialog('/', function (session) {
       })
   }
 });
-
-function calType(type) {
-  switch (type) {
-    case 'jpg':
-    case 'jpeg':
-      return 'image/jpg';
-    case 'png':
-      return 'image/png';
-    default:
-      return null
-  }
-}
 
 /**
  * Returns a random integer between min (inclusive) and max (inclusive)
