@@ -5,10 +5,6 @@ dotenv.load();
 const restify = require('restify');
 const builder = require('botbuilder');
 
-global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
-
-const RestClient = require('another-rest-client');
-
 const Wit = require('node-wit').Wit;
 
 // my commands
@@ -29,11 +25,6 @@ const connector = new builder.ChatConnector({
   appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
 
-const googleApiToken = {
-  ApiKey: process.env.GOOGLE_API_KEY,
-  CseKey: process.env.GOOGLE_CUSTOM_SEARCH_ENGINE_ID
-};
-
 const witToken = {
   server: process.env.WIT_SERVER_ACCESS_TOKEN,
   appid: process.env.WIT_APP_ID,
@@ -43,9 +34,6 @@ const witToken = {
 
 // Listen for messages from users 
 server.post('/api/messages', connector.listen());
-
-// google api
-const api = new RestClient('https://www.googleapis.com/customsearch/v1');;
 
 // wit client
 const witClient = new Wit({
