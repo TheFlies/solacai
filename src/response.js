@@ -1,5 +1,5 @@
-var FindImgCmd = require('./find_img_cmd')
-var util = require('./util')
+var FindImgCmd = require('./find_img_cmd');
+var util = require('./util');
 
 //----------------------
 // The response dictionary
@@ -28,7 +28,7 @@ var data = {
   "drinkLocation": drinkLocation,
   "swearMe": swearMe,
   "confuse": confuse
-}
+};
 
 /**
  * Pick a random message in the Array
@@ -55,7 +55,7 @@ function getMessage(intents, query, session) {
         case "swear.me": msg = pickRan(swearMe);
           break;
         case "find.image":
-          console.log("query: " + JSON.stringify(query[0]))
+          console.log("query: " + JSON.stringify(query[0]));
           if (query[0] && query[0].confidence >= 0.7) {
             FindImgCmd.googleImageSearch(session, query[0].value);
           }

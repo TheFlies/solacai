@@ -1,43 +1,43 @@
-var dotenv = require('dotenv');
+const dotenv = require('dotenv');
 // There's no need to check if .env exists, dotenv will check this // for you. It will show a small warning which can be disabled when // using this in production.
 dotenv.load();
 
-var restify = require('restify');
-var builder = require('botbuilder');
+const restify = require('restify');
+const builder = require('botbuilder');
 
 global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 
-var RestClient = require('another-rest-client');
+const RestClient = require('another-rest-client');
 
-var Wit = require('node-wit').Wit
+const Wit = require('node-wit').Wit;
 
 // my commands
-var FindImgCmd = require('./find_img_cmd')
+const FindImgCmd = require('./find_img_cmd');
 // response
-var response = require('./response')
-var data = response.data
+const response = require('./response');
+const data = response.data;
 
 // Setup Restify Server
-var server = restify.createServer();
+const server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
   console.log('%s listening to %s', server.name, server.url);
 });
 
 // Create chat connector for communicating with the Bot Framework Service
-var connector = new builder.ChatConnector({
+const connector = new builder.ChatConnector({
   appId: process.env.MICROSOFT_APP_ID,
   appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
 
-var googleApiToken = {
+const googleApiToken = {
   ApiKey: process.env.GOOGLE_API_KEY,
   CseKey: process.env.GOOGLE_CUSTOM_SEARCH_ENGINE_ID
 };
 
-var witToken = {
+const witToken = {
   server: process.env.WIT_SERVER_ACCESS_TOKEN,
   appid: process.env.WIT_APP_ID,
-}
+};
 
 //-----------------------
 
@@ -45,15 +45,15 @@ var witToken = {
 server.post('/api/messages', connector.listen());
 
 // google api
-var api = new RestClient('https://www.googleapis.com/customsearch/v1');
+const api = new RestClient('https://www.googleapis.com/customsearch/v1');;
 
 // wit client
-var witClient = new Wit({
+const witClient = new Wit({
   accessToken: witToken.server
-})
+});
 
 // ok bot
-var bot = new builder.UniversalBot(connector, [
+const bot = new builder.UniversalBot(connector, [
   function (session) {
     session.beginDialog('default');
   }
@@ -62,8 +62,8 @@ var bot = new builder.UniversalBot(connector, [
 // ------------ Bot event handler
 bot.on('contactRelationUpdate', function (message) {
   if (message.action === 'add') {
-    var name = message.user ? message.user.name : null;
-    var reply = new builder.Message()
+    const name = message.user ? message.user.name : null;
+    const reply = new builder.Message()
       .address(message.address)
       .text("Chào anh %s... em là %s", name || 'ấy', message.address.bot.name || 'bum búm');
     bot.send(reply);
@@ -74,27 +74,27 @@ bot.on('contactRelationUpdate', function (message) {
 
 // ------------ Bot default handler
 bot.dialog('default', function (session) {
-  var msg = session.message.text//.toLocaleLowerCase().replace("@ruồi sờ là cai", "").trim()
-  msg = removeBotInformation(session.message.address.bot, msg)
+  let msg = session.message.text; //.toLocaleLowerCase().replace("@ruồi sờ là cai", "").trim()
+  msg = removeBotInformation(session.message.address.bot, msg);
   // ------------- procesing commands
   // find images command
   if (!FindImgCmd.processed(session, msg)) {
     // --------------- processing using available ML wit.ai
     witClient.message(msg, {})
     .then(function (res) {
-      console.log("wit api returned JSON: \n"+JSON.stringify(res))
-      var intents = res.entities.drink || res.entities.swear || res.entities.find || [];
-      var query = res.entities.query || null;
-      var resMsg = response.getMessage(intents, query, session) || response.pickRan(data.confuse);
+      console.log('wit api returned JSON: \n'+JSON.stringify(res));
+      const intents = res.entities.drink || res.entities.swear || res.entities.find || [];
+      const query = res.entities.query || null;
+      const resMsg = response.getMessage(intents, query, session) || response.pickRan(data.confuse);
       if (resMsg && !res.entities.find) {
-        console.log("we don't need find anything so returned.")
+        console.log("we don't need find anything so returned.");
         session.endDialog(resMsg);
       }
     })
     .catch(function (err) {
-      console.log("error happed.", err)
+      console.log("error happened.", err);
       session.endDialog(response.pickRan(data.confuse));
-    })
+    });
   }
 });
 
@@ -102,8 +102,8 @@ function removeBotInformation(bot, msg) {
   if (bot) {
     return msg
       .replace("@"+bot.name, "").trim()
-      .replace("@"+bot.id, "").trim()
+      .replace("@"+bot.id, "").trim();
   }
 
-  return msg
+  return msg;
 }
