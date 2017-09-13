@@ -24,10 +24,19 @@ var confuse = [
   "đừng chọc em"
 ];
 
+var conversationGreeting = [
+  "xin chào",
+  "konichiwa",
+  "hai hai",
+  "hello",
+  "chào anh"
+];
+
 var data = {
   "drinkLocation": drinkLocation,
   "swearMe": swearMe,
-  "confuse": confuse
+  "confuse": confuse,
+  "conversationGreeting": conversationGreeting
 };
 
 /**
@@ -51,15 +60,17 @@ function getMessage(intents, query, session) {
     if (i < intents.length) {
       switch (intents[i].value) {
         case "drink.location": msg = pickRan(drinkLocation);
-          break;
+        break;
         case "swear.me": msg = pickRan(swearMe);
-          break;
+        break;
         case "find.image":
           console.log("query: " + JSON.stringify(query[0]));
           if (query[0] && query[0].confidence >= 0.7) {
             FindImgCmd.googleImageSearch(session, query[0].value);
           }
           break;
+        case "conversation.greeting": msg = pickRan(conversationGreeting)
+        break;
         default: break;
       }
     }

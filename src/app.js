@@ -83,7 +83,7 @@ bot.dialog('default', function (session) {
     witClient.message(msg, {})
     .then(function (res) {
       console.log('wit api returned JSON: \n'+JSON.stringify(res));
-      const intents = res.entities.drink || res.entities.swear || res.entities.find || [];
+      const intents = res.entities.drink || res.entities.swear || res.entities.find || res.entities.conversation || [];
       const query = res.entities.query || null;
       const resMsg = response.getMessage(intents, query, session) || response.pickRan(data.confuse);
       if (resMsg && !res.entities.find) {
