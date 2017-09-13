@@ -11,6 +11,12 @@ var RestClient = require('another-rest-client');
 
 var Wit = require('node-wit').Wit
 
+// my commands
+var FindImgCmd = require('./find_img_cmd')
+// response
+var response = require('./response')
+var data = response.data
+
 // Setup Restify Server
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
@@ -33,58 +39,27 @@ var witToken = {
   appid: process.env.WIT_APP_ID,
 }
 
-//----------------------
-// The response dictionary
-var drinkLocation = [
-  "La Cà - Ngô Thị Thu Minh ố ô ỳe ye",
-  "La Cà - Đường Phố - Hoàng Sa - Bờ kè thoáng mát hợp vệ sinh ngon lắm anh êy",
-  "1B - Thích Quảng Đức Bưởi da trắng, Cam Đào Mận Xoài đủ cả (heart)",
-  "Nhậu thì ra 45 - Phan Đăng Lưu, thơm mũi mát mắt nha mấy anh"
-];
-
-var swearMe = [
-  "sao anh chửi em?",
-  "em vô tội",
-  "ngon nhào vô đi!",
-  "cám ơn, anh cũng vậy"
-];
-
-var confuse = [
-  "xin lỗi, em bị ngu",
-  "tôi không có nhà, vui lòng thử lại sau",
-  "quán nay đóng cửa vài phút, lát ghé nha",
-  "đừng chọc em"
-];
-/**
- * Returns a random integer between min (inclusive) and max (inclusive)
- * Using Math.round() will give you a non-uniform distribution!
- */
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-/**
- * Pick a random message in the Array
- * @param {*Array} dic The arrays of possible reply messages
- */
-function pickRan(dic) {
-  var rnum = getRandomInt(0, dic.length - 1);
-  return dic[rnum] || dic[0];
-}
 //-----------------------
 
 // Listen for messages from users 
 server.post('/api/messages', connector.listen());
 
-// ok bot
-var bot = new builder.UniversalBot(connector);
-
+// google api
 var api = new RestClient('https://www.googleapis.com/customsearch/v1');
 
+// wit client
 var witClient = new Wit({
   accessToken: witToken.server
 })
 
-//Bot on
+// ok bot
+var bot = new builder.UniversalBot(connector, [
+  function (session) {
+    session.beginDialog('default');
+  }
+]);
+
+// ------------ Bot event handler
 bot.on('contactRelationUpdate', function (message) {
   if (message.action === 'add') {
     var name = message.user ? message.user.name : null;
@@ -97,127 +72,38 @@ bot.on('contactRelationUpdate', function (message) {
   }
 });
 
-bot.on('typing', function (message) {
-  // User is typing
-});
-
-bot.dialog('/', function (session) {
+// ------------ Bot default handler
+bot.dialog('default', function (session) {
   var msg = session.message.text//.toLocaleLowerCase().replace("@ruồi sờ là cai", "").trim()
   msg = removeBotInformation(session.message.address.bot, msg)
-  console.log('>>> %s %s', msg, bot.get("name"))
-  if (msg.indexOf('tét hình') >= 0) {
-    session.send("đi kiếm hình là đi kiếm hình");
-    var kb = msg.split('tét hình');
-    if (kb.length >= 2 && kb[1].trim().length > 0) {
-      api.get({
-        q: kb[1].trim(), cx: googleApiToken.CseKey, searchType: "image", fields: "items(link,mime)",
-        key: googleApiToken.ApiKey
-      }).then(function (res) {
-        if (res && res.items && res.items.length > 9) {
-          var r = res.items[getRandomInt(0, 9)]
-          console.log('first 10 results from google', res.items);
-          if (r) {
-            var url = r.link;
-            var type = r.mime;
-            if (type != null) {
-              sendInternetUrl(session, url, type, null);
-            }
-          } else
-            session.send("Hong lay duoc hình òi");
-        } else {
-          session.send("Hết quota rồi anh ới...");
-        }
-      }).catch(function (err) {
-        console.log('err', err);
-        session.send("Lỗi này rồi: ", err);
-      });
-    } else {
-      session.send("code lỗi rồi");
-    }
-  } else {
+  // ------------- procesing commands
+  // find images command
+  if (!FindImgCmd.processed(session, msg)) {
+    // --------------- processing using available ML wit.ai
     witClient.message(msg, {})
-      .then(function (res) {
-        console.log("Res:" + JSON.stringify(res));
-        var intents = res.entities.drink || res.entities.swear || res.entities.find || null;
-        var query = res.entities.query || null;
-        var resMsg = getResponseMsg(intents, query, session) || pickRan(confuse);
-
-        if (resMsg && !res.entities.find) session.send(resMsg);
-      })
-      .catch(function (err) {
-        session.send("em bị ngu, đừng phá em. "+ JSON.stringify(err));
-      })
+    .then(function (res) {
+      console.log("wit api returned JSON: \n"+JSON.stringify(res))
+      var intents = res.entities.drink || res.entities.swear || res.entities.find || [];
+      var query = res.entities.query || null;
+      var resMsg = response.getMessage(intents, query, session) || response.pickRan(data.confuse);
+      if (resMsg && !res.entities.find) {
+        console.log("we don't need find anything so returned.")
+        session.endDialog(resMsg);
+      }
+    })
+    .catch(function (err) {
+      console.log("error happed.", err)
+      session.endDialog(response.pickRan(data.confuse));
+    })
   }
 });
 
 function removeBotInformation(bot, msg) {
-  console.log('Removing '+bot.name+' and '+bot.id+' out of message')
-  return msg
-    .replace("@"+bot.name, "").trim()
-    .replace("@"+bot.id, "").trim()
-}
-
-/**
- * Attach an internet image and send it to user
- * @param {*} session current conversation session
- * @param {*} url The image url on Internet
- * @param {*} contentType MIME type of the image
- * @param {*} attachmentFileName Custom file name of attachment
- */
-function sendInternetUrl(session, url, contentType, attachmentFileName) {
-  var msg = new builder.Message(session)
-    .addAttachment({
-      contentUrl: url,
-      contentType: contentType,
-      name: attachmentFileName
-    });
-
-  session.send(msg);
-}
-
-function getResponseMsg(intents, query, session) {
-  var msg = null;
-  if (intents && intents.length>0) {
-    console.log("get first intent having confidence")
-    var i = 0;
-    while (intents[i] && intents[i].confidence < 0.9) {
-      i++;
-    }
-    
-    if (i < intents.length) {
-      switch (intents[i].value) {
-        case "drink.location": msg = pickRan(drinkLocation);
-        break;
-        case "swear.me": msg = pickRan(swearMe);
-        break;
-        case "find.image": if (query && query[0].confidence>=0.9) {
-          api.get({
-            q: query[0].value, cx: googleApiToken.CseKey, searchType: "image", fields: "items(link,mime)",
-            key: googleApiToken.ApiKey
-          }).then(function (res) {
-            if (res && res.items && res.items.length > 9) {
-              var r = res.items[getRandomInt(0, 9)]
-              console.log('first 10 results from google', res.items);
-              if (r) {
-                var url = r.link;
-                var type = r.mime;
-                if (type != null) {
-                  sendInternetUrl(session, url, type, null);
-                }
-              } else
-                session.send("Hong lay duoc hình òi");
-            } else {
-              session.send("Hết quota rồi anh ới...");
-            }
-          }).catch(function (err) {
-            console.log('err', err);
-            session.send("Lỗi này rồi: ", err);
-          });
-        }
-        break;
-        default: break;
-      }
-    }
+  if (bot) {
+    return msg
+      .replace("@"+bot.name, "").trim()
+      .replace("@"+bot.id, "").trim()
   }
-  return msg;
+
+  return msg
 }
