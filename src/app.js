@@ -65,7 +65,7 @@ bot.on('contactRelationUpdate', function (message) {
     var name = message.user ? message.user.name : null;
     var reply = new builder.Message()
       .address(message.address)
-      .text("Chào anh %s... em là Ruồi", name || 'ấy');
+      .text("Chào anh %s... em là %s", name || 'ấy', message.address.bot.name || 'bum búm');
     bot.send(reply);
   } else {
     // delete their data
