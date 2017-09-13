@@ -37,37 +37,40 @@ function imageResponsedHandler(session, images) {
   return defaultMsg;
 }
 
-module.exports = {
-  processed: function (session, msg) {
-    if (msg.indexOf('tét hình') >= 0) {
-      session.send("đi kiếm hình là đi kiếm hình")
-      var kb = msg.split('tét hình')
-      if (kb.length >= 2 && kb[1].trim().length > 0) {
-        this.googleImageSearch(session, kb[1].trim())
-      } else {
-        session.endDialog("code lỗi rồi")
-      }
-
-      return true;
+function processed(session, msg) {
+  if (msg.indexOf('tét hình') >= 0) {
+    session.send("đi kiếm hình là đi kiếm hình")
+    var kb = msg.split('tét hình')
+    if (kb.length >= 2 && kb[1].trim().length > 0) {
+      googleImageSearch(session, kb[1].trim())
     } else {
-      return false;
+      session.endDialog("code lỗi rồi")
     }
-  },
-  googleImageSearch: function (session, query) {
-    console.log("searching on gu gồ")
-    api.get({
-      q: query, 
-      cx: process.env.GOOGLE_CUSTOM_SEARCH_ENGINE_ID, 
-      searchType: "image", 
-      fields: "items(link,mime)",
-      key: process.env.GOOGLE_API_KEY
-    }).then(function (res) {
-      console.log("got response from gu gồ")
-      var defaultMsg = imageResponsedHandler(session, res) || "Hong lay duoc hình òi"
-      session.endDialog(defaultMsg);
-    }).catch(function (err) {
-      console.log('err', err)
-      session.endDialog("Lỗi rồi")
-    });
+
+    return true;
+  } else {
+    return false;
   }
+}
+
+function googleImageSearch(session, query) {
+  console.log("searching on gu gồ")
+  api.get({
+    q: query, 
+    cx: process.env.GOOGLE_CUSTOM_SEARCH_ENGINE_ID, 
+    searchType: "image", 
+    fields: "items(link,mime)",
+    key: process.env.GOOGLE_API_KEY
+  }).then(function (res) {
+    console.log("got response from gu gồ")
+    var defaultMsg = imageResponsedHandler(session, res) || "Hong lay duoc hình òi"
+    session.endDialog(defaultMsg);
+  }).catch(function (err) {
+    console.log('err', err)
+    session.endDialog("Lỗi rồi")
+  });
+}
+
+module.exports = {
+  processed, googleImageSearch
 }

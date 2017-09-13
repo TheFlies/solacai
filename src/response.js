@@ -24,76 +24,49 @@ var confuse = [
   "đừng chọc em"
 ];
 
+var data = {
+  "drinkLocation": drinkLocation,
+  "swearMe": swearMe,
+  "confuse": confuse
+}
+
 /**
-   * Attach an internet image and send it to user
-   * @param {*} session current conversation session
-   * @param {*} url The image url on Internet
-   * @param {*} contentType MIME type of the image
-   * @param {*} attachmentFileName Custom file name of attachment
-   */
-function buildImageAttachedMsg(session, url, contentType, attachmentFileName) {
-  return new builder.Message(session)
-    .addAttachment({
-      contentUrl: url,
-      contentType: contentType,
-      name: attachmentFileName
-    });
+ * Pick a random message in the Array
+ * @param {*Array} dic The arrays of possible reply messages
+ */
+function pickRan(dic) {
+  var rnum = util.getRandomInt(0, dic.length - 1);
+  return dic[rnum] || dic[0];
+}
+
+function getMessage(intents, query, session) {
+  var msg = null;
+
+  if (intents && intents.length > 0) {
+    var i = 0;
+    while (intents[i] && intents[i].confidence < 0.9) {
+      i++;
+    }
+
+    if (i < intents.length) {
+      switch (intents[i].value) {
+        case "drink.location": msg = pickRan(drinkLocation);
+          break;
+        case "swear.me": msg = pickRan(swearMe);
+          break;
+        case "find.image":
+          console.log("query: " + JSON.stringify(query[0]))
+          if (query[0] && query[0].confidence >= 0.7) {
+            FindImgCmd.googleImageSearch(session, query[0].value);
+          }
+          break;
+        default: break;
+      }
+    }
+  }
+  return msg;
 }
 
 module.exports = {
-  data: {
-    "drinkLocation": drinkLocation,
-    "swearMe": swearMe,
-    "confuse": confuse
-  },
-  imageResponsedHandler: function (session, images) {
-    var defaultMsg;
-    if (images && images.items && images.items.length > 9) {
-      var r = images.items[util.getRandomInt(0, 9)]
-      if (r) {
-        var url = r.link;
-        var type = r.mime;
-        if (type != null) {
-          defaultMsg = buildImageAttachedMsg(session, url, type, null);
-        }
-      }
-    }
-    return defaultMsg;
-  },
-  /**
-   * Pick a random message in the Array
-   * @param {*Array} dic The arrays of possible reply messages
-   */
-  pickRan: function (dic) {
-    var rnum = util.getRandomInt(0, dic.length - 1);
-    return dic[rnum] || dic[0];
-  },
-
-  getMessage: function (intents, query, session) {
-    var msg = null;
-
-    if (intents && intents.length > 0) {
-      var i = 0;
-      while (intents[i] && intents[i].confidence < 0.9) {
-        i++;
-      }
-
-      if (i < intents.length) {
-        switch (intents[i].value) {
-          case "drink.location": msg = this.pickRan(this.drinkLocation);
-            break;
-          case "swear.me": msg = this.pickRan(this.swearMe);
-            break;
-          case "find.image":
-            console.log("query: " + JSON.stringify(query[0]))
-            if (query[0] && query[0].confidence >= 0.7) {
-              FindImgCmd.googleImageSearch(session, query[0].value);
-            }
-            break;
-          default: break;
-        }
-      }
-    }
-    return msg;
-  }
+  data, pickRan, getMessage
 }
