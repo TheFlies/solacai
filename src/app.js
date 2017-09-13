@@ -102,7 +102,8 @@ function removeBotInformation(bot, msg) {
   if (bot) {
     return msg
       .replace("@"+bot.name, "").trim()
-      .replace("@"+bot.id, "").trim();
+      .replace("@"+bot.id, "").trim()
+      .replace("@Ruồi Sờ Là Cai", ""); // still need to remove cached old name
   }
 
   return msg;
