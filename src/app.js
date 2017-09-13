@@ -33,6 +33,8 @@ var witToken = {
   appid: process.env.WIT_APP_ID,
 }
 
+//----------------------
+// The response dictionary
 var drinkLocation = [
   "La Cà - Ngô Thị Thu Minh ố ô ỳe ye",
   "La Cà - Đường Phố - Hoàng Sa - Bờ kè thoáng mát hợp vệ sinh ngon lắm anh êy",
@@ -53,6 +55,22 @@ var confuse = [
   "quán nay đóng cửa vài phút, lát ghé nha",
   "đừng chọc em"
 ];
+/**
+ * Returns a random integer between min (inclusive) and max (inclusive)
+ * Using Math.round() will give you a non-uniform distribution!
+ */
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+/**
+ * Pick a random message in the Array
+ * @param {*Array} dic The arrays of possible reply messages
+ */
+function pickRan(dic) {
+  var rnum = getRandomInt(0, dic.length - 1);
+  return dic[rnum] || dic[0];
+}
+//-----------------------
 
 // Listen for messages from users 
 server.post('/api/messages', connector.listen());
@@ -84,8 +102,9 @@ bot.on('typing', function (message) {
 });
 
 bot.dialog('/', function (session) {
-  var msg = session.message.text.toLocaleLowerCase().replace("@ruồi sờ là cai", "").trim()
-  console.log('>>> %s', msg)
+  var msg = session.message.text//.toLocaleLowerCase().replace("@ruồi sờ là cai", "").trim()
+  msg = removeBotInformation(session.message.address.bot, msg)
+  console.log('>>> %s %s', msg, bot.get("name"))
   if (msg.indexOf('tét hình') >= 0) {
     session.send("đi kiếm hình là đi kiếm hình");
     var kb = msg.split('tét hình');
@@ -131,15 +150,20 @@ bot.dialog('/', function (session) {
   }
 });
 
-/**
- * Returns a random integer between min (inclusive) and max (inclusive)
- * Using Math.round() will give you a non-uniform distribution!
- */
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function removeBotInformation(bot, msg) {
+  console.log('Removing '+bot.name+' and '+bot.id+' out of message')
+  return msg
+    .replace("@"+bot.name, "").trim()
+    .replace("@"+bot.id, "").trim()
 }
 
-// Sends attachment using an Internet url
+/**
+ * Attach an internet image and send it to user
+ * @param {*} session current conversation session
+ * @param {*} url The image url on Internet
+ * @param {*} contentType MIME type of the image
+ * @param {*} attachmentFileName Custom file name of attachment
+ */
 function sendInternetUrl(session, url, contentType, attachmentFileName) {
   var msg = new builder.Message(session)
     .addAttachment({
@@ -196,9 +220,4 @@ function getResponseMsg(intents, query, session) {
     }
   }
   return msg;
-}
-
-function pickRan(dic) {
-  var rnum = getRandomInt(0, dic.length - 1);
-  return dic[rnum] || dic[0];
 }
