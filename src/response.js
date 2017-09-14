@@ -20,7 +20,7 @@ var swearMe = [
 var confuse = [
   "xin lỗi, em bị ngu",
   "tôi không có nhà, vui lòng thử lại sau",
-  "quán nay đóng cửa vài phút, lát ghé nha",
+  "à, hiểu, mà hỏi người khác đi nha",
   "đừng chọc em"
 ];
 

@@ -12,6 +12,8 @@ const FindImgCmd = require('./find_img_cmd');
 // response
 const response = require('./response');
 const data = response.data;
+// message router
+const MessageRouter = require('./message_router');
 
 // Setup Restify Server
 const server = restify.createServer();
@@ -40,6 +42,70 @@ const witClient = new Wit({
   accessToken: witToken.server
 });
 
+const drinkHandler = (entities) => {
+  if (!entities.drink) {
+    throw new Error('No drink here');
+  }
+  // get max confidence intent
+  let drinkIntent = entities.drink
+    .filter(d => d.confidence>=0.9)
+    .reduce((min, next) => Math.max(next.confidence, min.confidence), entities.drink[0]);
+  
+  if (!drinkIntent) {
+    throw new Error('We don\'t have enough confidence for drink')
+  }
+  // check drink action
+  let action = drinkIntent.value
+
+}
+
+// intents processor
+const iProcessor = new IntentsProcessor();
+iProcessor.register("drink", drinkHandler)
+iProcessor.register("swear", swearHandler)
+iProcessor.register("find", findHandler)
+iProcessor.register("conversation", conversationHandler)
+
+// router
+const witAiHandler = {
+  action: (session, msg) => {
+    // --------------- processing using available ML wit.ai
+    witClient.message(msg, {})
+      .then(function (res) {
+        // 1. how to know the response's entities contain
+        //    drink swear find conversation
+        // 2. process base on response's entities intents
+
+
+        console.log('wit api returned JSON: \n' + JSON.stringify(res));
+        const intents = res.entities.drink || res.entities.swear || res.entities.find || res.entities.conversation || [];
+        const query = res.entities.query || null;
+        const resMsg = response.getMessage(intents, query, session) || response.pickRan(data.confuse);
+        if (resMsg && !res.entities.find) {
+          console.log("we don't need find anything so returned.");
+          session.endDialog(resMsg);
+        }
+      })
+      .catch(function (err) {
+        console.log("error happened.", err);
+        session.endDialog(response.pickRan(data.confuse));
+      });
+  }
+};
+
+const helpHandler = {
+  action: (session, msg) => {
+    session.endDialog(" Hướng dẫn là hong có hướng dẫn :D.")
+  }
+}
+
+const router = new MessageRouter();
+
+// Order matters!
+router.register(/^tét hình .*$/, FindImgCmd);
+router.register(/^hép .*$/, helpHandler);
+router.register(/.*/, witAiHandler);
+
 // ok bot
 const bot = new builder.UniversalBot(connector, [
   function (session) {
@@ -64,33 +130,14 @@ bot.on('contactRelationUpdate', function (message) {
 bot.dialog('default', function (session) {
   let msg = session.message.text; //.toLocaleLowerCase().replace("@ruồi sờ là cai", "").trim()
   msg = removeBotInformation(session.message.address.bot, msg);
-  // ------------- procesing commands
-  // find images command
-  if (!FindImgCmd.processed(session, msg)) {
-    // --------------- processing using available ML wit.ai
-    witClient.message(msg, {})
-    .then(function (res) {
-      console.log('wit api returned JSON: \n'+JSON.stringify(res));
-      const intents = res.entities.drink || res.entities.swear || res.entities.find || res.entities.conversation || [];
-      const query = res.entities.query || null;
-      const resMsg = response.getMessage(intents, query, session) || response.pickRan(data.confuse);
-      if (resMsg && !res.entities.find) {
-        console.log("we don't need find anything so returned.");
-        session.endDialog(resMsg);
-      }
-    })
-    .catch(function (err) {
-      console.log("error happened.", err);
-      session.endDialog(response.pickRan(data.confuse));
-    });
-  }
+  router.handle(session, msg);
 });
 
 function removeBotInformation(bot, msg) {
   if (bot) {
     return msg
-      .replace("@"+bot.name, "").trim()
-      .replace("@"+bot.id, "").trim()
+      .replace("@" + bot.name, "").trim()
+      .replace("@" + bot.id, "").trim()
       .replace("@Ruồi Sờ Là Cai", "").trim(); // still need to remove cached old name
   }
 

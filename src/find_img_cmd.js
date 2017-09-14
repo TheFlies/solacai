@@ -37,19 +37,13 @@ function imageResponsedHandler(session, images) {
   return defaultMsg;
 }
 
-function processed(session, msg) {
-  if (msg.indexOf('tét hình') >= 0) {
-    session.send("đi kiếm hình là đi kiếm hình");
-    const kb = msg.split('tét hình');
-    if (kb.length >= 2 && kb[1].trim().length > 0) {
-      googleImageSearch(session, kb[1].trim());
-    } else {
-      session.endDialog("code lỗi rồi");
-    }
-
-    return true;
+function action(session, message) {
+  session.send("đi kiếm hình là đi kiếm hình");
+  const kb = message.split('tét hình');
+  if (kb.length >= 2 && kb[1].trim().length > 0) {
+    googleImageSearch(session, kb[1].trim());
   } else {
-    return false;
+    session.endDialog("code lỗi rồi");
   }
 }
 
@@ -72,5 +66,5 @@ function googleImageSearch(session, query) {
 }
 
 module.exports = {
-  processed, googleImageSearch
+  googleImageSearch, action
 };
