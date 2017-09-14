@@ -56,15 +56,14 @@ const drinkHandler = (entities) => {
   }
   // check drink action
   let action = drinkIntent.value
-
 }
 
 // intents processor
-const iProcessor = new IntentsProcessor();
-iProcessor.register("drink", drinkHandler)
-iProcessor.register("swear", swearHandler)
-iProcessor.register("find", findHandler)
-iProcessor.register("conversation", conversationHandler)
+// const iProcessor = new IntentsProcessor();
+// iProcessor.register("drink", drinkHandler)
+// iProcessor.register("swear", swearHandler)
+// iProcessor.register("find", findHandler)
+// iProcessor.register("conversation", conversationHandler)
 
 // router
 const witAiHandler = {
@@ -75,7 +74,6 @@ const witAiHandler = {
         // 1. how to know the response's entities contain
         //    drink swear find conversation
         // 2. process base on response's entities intents
-
 
         console.log('wit api returned JSON: \n' + JSON.stringify(res));
         const intents = res.entities.drink || res.entities.swear || res.entities.find || res.entities.conversation || [];
