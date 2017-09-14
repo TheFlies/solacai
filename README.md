@@ -11,7 +11,7 @@ We training and support those intents (and their values):
 Flow:
 - passive mode:
 -> msg comming
-
+```
     cmds.process(msg)
       .then((res) ->
          reply(res)
@@ -23,7 +23,7 @@ Flow:
                  reply(confused)
              )
       )
-
+```
 - proactive mode: NOT implemented
 
 - cmds.register(FindImageCmd, AddReplyCmd, ... )
