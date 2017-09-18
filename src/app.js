@@ -172,7 +172,7 @@ bot.dialog('proactiveDialog', function (session, args) {
   }, 5000);
 })
 .triggerAction({
-  matches: /^@bướm tét láo$/i,
+  matches: /^(@bướm )?tét láo$/i,
   confirmPrompt: "Anh có chắc hong? Hình như anh đang kẹt? Làm cái này là mất cái đang kẹt luôn á nha..."
 });
 
@@ -183,11 +183,11 @@ function startProactiveDialog(address) {
 
 // handle the proactive initiated dialog
 bot.dialog('survey', function (session, args, next) {
-  if (session.message.text === "@bướm nghỉ đi") {
+  if (session.message.text.match(/^(@bướm )?nghỉ đi$/i)) {
     session.send("Ôh, ngon rồi, em đi đây...");
     session.endDialog();
   } else {
-    session.send('Muốn nghỉ thì gõ "@bướm nghỉ đi` nha mấy anh');
+    session.send('Muốn nghỉ thì gõ "@bướm nghỉ đi" nha mấy anh');
   }
 });
 
