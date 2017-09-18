@@ -10,19 +10,26 @@ We training and support those intents (and their values):
 
 Flow:
 - passive mode:
--> msg comming
+-> msg router
+```javascript
+const router = new MessageRouter();
+// Order matters!
+router.register(/^tét hình .*$/, FindImgCmd);
+// router.register(/^tét láo .*$/, TestProactiveCmd);
+router.register(/^hép .*$/, helpHandler);
+router.register(/.*/, witAiHandler);
 ```
-    cmds.process(msg)
-      .then((res) ->
-         reply(res)
-      ).catch((err) ->
-         witML.process(msg)
-             then((res) ->
-                 reply(res)
-             ).catch((err) ->
-                 reply(confused)
-             )
-      )
+-> witAiHandler processors
+```javascript
+// entities processor
+const iProcessor = new EntitiesProcessor();
+// - complex command
+iProcessor.register(FindImgCmd);
+// - simple command
+iProcessor.register(simpleProcessor, computeMsgDrinkLocation)
+// default - return confuse
+iProcessor.register(simpleProcessor, data => response.pickRan(response.data.confuse));
+
 ```
 - proactive mode: NOT implemented
 
