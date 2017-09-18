@@ -16,7 +16,8 @@ const data = response.data;
 // message router
 const MessageRouter = require('./message_router');
 // wit.ai entities processor
-const EntitiesProcessor = require('./entities_processor');
+const EntitiesProcessor = require('./entities_processor').EntitiesProcessor;
+const validateWitAIMsg = require('./entities_processor').validateWitAIMsg;
 
 // Setup Restify Server
 const server = restify.createServer();
@@ -50,27 +51,6 @@ const witClient = new Wit({
  * a Command which implement action(session, message) function. Read FindImgCmd as example.
  */
 const simpleProcessor = { action: (session, msg) => session.endDialog(msg) };
-
-/**
- * validate the wit.ai response
- * @param {*} data The response from wit.ai
- * @param {*} entity The entity that we want to validate
- * @param {*} value The value that we want to process
- */
-const validateWitAIMsg = (data, entity, value) => {
-  if (!data || !data.entities || !data.entities[entity]) {
-    throw new Error('This is not `' + entity + '` entity');
-  }
-  const e = data.entities[entity].reduce((max, f) => {
-    return (f.confidence < max.confidence) ? f : max;
-  }, data.entities[entity][0])
-
-  if (!e || value != e['value']) {
-    throw new Error('Not enough confidence or not ' + value);
-  }
-
-  return e;
-}
 
 const computeMsgDrinkLocation = (data) => {
   validateWitAIMsg(data, "drink", "drink.location");

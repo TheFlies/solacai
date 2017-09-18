@@ -17,6 +17,7 @@ class EntitiesProcessor {
   }
 
   process(session, data) {
+    console.log('wit data: \n'+JSON.stringify(data, null, 2));
     for (let handler of this._handlers) {
       // getting the message
       try {
@@ -25,7 +26,7 @@ class EntitiesProcessor {
           return handler.action(session, msg);
         }
       } catch (e) {
-        // console.error('can\'t handle data.',e);
+        console.info('can\'t handle data.',e);
         // ignored
       }
     }
@@ -33,4 +34,25 @@ class EntitiesProcessor {
   }
 }
 
-module.exports = EntitiesProcessor;
+/**
+ * validate the wit.ai response
+ * @param {*} data The response from wit.ai
+ * @param {*} entity The entity that we want to validate
+ * @param {*} value The value that we want to process
+ */
+const validateWitAIMsg = (data, entity, value) => {
+  if (!data || !data.entities || !data.entities[entity]) {
+    throw new Error('This is not `' + entity + '` entity');
+  }
+  const e = data.entities[entity].reduce((max, f) => {
+    return (f.confidence < max.confidence) ? f : max;
+  }, data.entities[entity][0]);
+
+  if (!e || value != e['value']) {
+    throw new Error('Not enough confidence or not ' + value);
+  }
+
+  return e;
+}
+
+module.exports = { EntitiesProcessor, validateWitAIMsg };

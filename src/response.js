@@ -62,36 +62,6 @@ function pickRan(dic) {
   return dic[rnum] || dic[0];
 }
 
-function getMessage(intents, query, session) {
-  var msg = null;
-
-  if (intents && intents.length > 0) {
-    var i = 0;
-    while (intents[i] && intents[i].confidence < 0.9) {
-      i++;
-    }
-
-    if (i < intents.length) {
-      switch (intents[i].value) {
-        case "drink.location": msg = pickRan(drinkLocation);
-          break;
-        case "swear.me": msg = pickRan(swearMe);
-          break;
-        case "find.image":
-          console.log("query: " + JSON.stringify(query[0]));
-          if (query[0] && query[0].confidence >= 0.7) {
-            FindImgCmd.googleImageSearch(session, query[0].value);
-          }
-          break;
-        case "conversation.greeting": msg = pickRan(conversationGreeting);
-          break;
-        default: break;
-      }
-    }
-  }
-  return msg;
-}
-
 module.exports = {
-  data, pickRan, getMessage
+  data, pickRan
 }
