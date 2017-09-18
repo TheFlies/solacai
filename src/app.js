@@ -160,7 +160,6 @@ bot.dialog('default', function (session) {
   router.handle(session, msg);
 });
 
-// proactiveDialog dialog
 bot.dialog('proactiveDialog', function (session, args) {
 
   savedAddress = session.message.address;
@@ -184,11 +183,11 @@ function startProactiveDialog(address) {
 
 // handle the proactive initiated dialog
 bot.dialog('survey', function (session, args, next) {
-  if (session.message.text === "nghỉ đi") {
+  if (session.message.text === "@bướm nghỉ đi") {
     session.send("Ôh, ngon rồi, em đi đây...");
     session.endDialog();
   } else {
-    session.send('Muốn nghỉ thì gõ "nghỉ đi" nha mấy anh');
+    session.send('Muốn nghỉ thì gõ "@bướm nghỉ đi` nha mấy anh');
   }
 });
 
