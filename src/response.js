@@ -38,11 +38,18 @@ var conversationGreeting = [
   "chào anh"
 ];
 
+var conversationBye = [
+  "tạm biệt",
+  "bái bai",
+  "good bye"
+];
+
 var data = {
   "drinkLocation": drinkLocation,
   "swearMe": swearMe,
   "confuse": confuse,
   "conversationGreeting": conversationGreeting,
+  "conversationBye": conversationBye,
   "bug": bug
 };
 

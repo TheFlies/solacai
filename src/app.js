@@ -9,6 +9,7 @@ const Wit = require('node-wit').Wit;
 
 // my commands
 const FindImgCmd = require('./find_img_cmd');
+// const TestProactiveCmd = require('./proactive_cmd');
 // response
 const response = require('./response');
 const data = response.data;
@@ -44,25 +45,18 @@ const witClient = new Wit({
   accessToken: witToken.server
 });
 
-const drinkHandler = (entities) => {
-  if (!entities.drink) {
-    throw new Error('No drink here');
-  }
-  // get max confidence intent
-  let drinkIntent = entities.drink
-    .filter(d => d.confidence>=0.9)
-    .reduce((max, next) => Math.max(next.confidence, max.confidence), entities.drink[0]);
-  
-  if (!drinkIntent) {
-    throw new Error('We don\'t have enough confidence for drink')
-  }
-  // check drink action
-  let action = drinkIntent.value
-}
-
-// simple processors
+/**
+ * a simple processor that end the session with message. For complex processor, create
+ * a Command which implement action(session, message) function. Read FindImgCmd as example.
+ */
 const simpleProcessor = {action: (session, msg) => session.endDialog(msg)};
-// validate the wit.ai response
+
+/**
+ * validate the wit.ai response
+ * @param {*} data The response from wit.ai
+ * @param {*} entity The entity that we want to validate
+ * @param {*} value The value that we want to process
+ */
 const validateWitAIMsg = (data,entity,value) => {
   if (!data || !data.entities || !data.entities[entity]) {
     throw new Error('This is not `'+entity+'` entity');
@@ -93,6 +87,11 @@ const computeMsgConversationGreeting = (data) => {
   return response.pickRan(response.data.conversationGreeting);
 }
 
+const computeMsgConversationBye = (data) => {
+  validateWitAIMsg(data, "conversation", "conversation.bye");
+  return response.pickRan(response.data.conversationBye);
+}
+
 // entities processor
 const iProcessor = new EntitiesProcessor();
 // - complex command
@@ -101,6 +100,7 @@ iProcessor.register(FindImgCmd);
 iProcessor.register(simpleProcessor, computeMsgDrinkLocation)
 iProcessor.register(simpleProcessor, computeMsgSwearMe)
 iProcessor.register(simpleProcessor, computeMsgConversationGreeting)
+iProcessor.register(simpleProcessor, computeMsgConversationBye)
 // default - return confuse
 iProcessor.register(simpleProcessor, data => response.pickRan(response.data.confuse));
 
@@ -114,7 +114,7 @@ const witAiHandler = {
       })
       .catch(function (err) {
         console.error("This should not happened, but seem we still having error.", err);
-        session.endDialog(response.pickRan(response.data.bug)+"\n"+JSON.stringify(err, Object.keys(err)));
+        session.endDialog(response.pickRan(response.data.bug)+"<br/>\n"+JSON.stringify(err, Object.keys(err)));
       });
   }
 };
@@ -129,6 +129,7 @@ const router = new MessageRouter();
 
 // Order matters!
 router.register(/^tét hình .*$/, FindImgCmd);
+// router.register(/^tét láo .*$/, TestProactiveCmd);
 router.register(/^hép .*$/, helpHandler);
 router.register(/.*/, witAiHandler);
 
