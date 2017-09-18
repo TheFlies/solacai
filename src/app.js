@@ -173,7 +173,7 @@ bot.dialog('proactiveDialog', function (session, args) {
   }, 5000);
 })
 .triggerAction({
-  matches: /^tét láo$/i,
+  matches: /^@bướm tét láo$/i,
   confirmPrompt: "Anh có chắc hong? Hình như anh đang kẹt? Làm cái này là mất cái đang kẹt luôn á nha..."
 });
 
