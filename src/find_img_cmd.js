@@ -57,7 +57,7 @@ function imagesResponsedHandler(session, images, log, num) {
       break;
       
       case 'last':
-      imgs = images.items.slice(Math.max(arr.length - number, 1));
+      imgs = images.items.slice(Math.max(images.items.length - number, 1));
       break;
 
       case 'random':
