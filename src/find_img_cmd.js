@@ -7,6 +7,13 @@ const builder = require('botbuilder');
 const validateWitAIMsg = require('./entities_processor').validateWitAIMsg
 const util = require('./util');
 
+var num = 0;
+var log = 'random';
+function clearNum() {
+  num = 0;
+  log = 'random';
+}
+
 /**
  * Attach an internet image and send it to user
  * @param {*} session current conversation session
@@ -23,10 +30,53 @@ function buildImageAttachedMsg(session, url, contentType, attachmentFileName) {
     });
 }
 
+function getRandomArrayElements(arr, count) {
+  var shuffled = arr.slice(0), i = arr.length, min = i - count, temp, index;
+  while (i-- > min) {
+      index = Math.floor((i + 1) * Math.random());
+      temp = shuffled[index];
+      shuffled[index] = shuffled[i];
+      shuffled[i] = temp;
+  }
+  return shuffled.slice(min);
+}
+
+function imagesResponsedHandler(session, images, log, num) {
+  let defaultMsgs = [];
+  if (images && images.items) {
+    let logic = log || 'random';
+    let number = num || 1;
+    if (number>images.items.length) {
+      number = images.items.length;
+    }
+
+    let imgs;
+    switch (log) {
+      case 'first':
+      imgs = images.items.slice(0,number);
+      break;
+      
+      case 'last':
+      imgs = images.items.slice(Math.max(arr.length - number, 1));
+      break;
+
+      case 'random':
+      default:
+      imgs = getRandomArrayElements(images.items, number);
+      break;
+    }
+
+    defaultMsgs = imgs
+      .filter( i => i.mime != null)
+      .map( i => buildImageAttachedMsg(session, i.link, i.mime));
+  }
+  return defaultMsgs;
+}
+
 function imageResponsedHandler(session, images) {
   let defaultMsg;
   if (images && images.items) {
-    const r = images.items[util.getRandomInt(0, images.items.length)];
+    const r = images.items[util.getRandomInt(0, images.items.length-1)];
     if (r) {
       const url = r.link;
       const type = r.mime;
@@ -37,9 +87,6 @@ function imageResponsedHandler(session, images) {
   }
   return defaultMsg;
 }
-
-var num = 1;
-var log = 'random';
 
 /**
  * Compute 'find.image' message from wit.ai reponse data
@@ -70,11 +117,12 @@ const computeMessage = (data) => {
     // logic
     if (data.entities.number) {
       const logic = data.entities.logic
-      .find( q => q.confidence>0.8 );
+      .filter( q => q.confidence>0.8 )
+      .map( q => q.value )[0];
 
       if (logic) {
         console.log("found logic: "+JSON.stringify(logic));
-        log = logic.value;
+        log = logic;
       }
     }
     
@@ -104,11 +152,25 @@ function googleImageSearch(session, query) {
     fields: "items(link,mime)",
     key: process.env.GOOGLE_API_KEY
   }).then(function (res) {
-    const defaultMsg = imageResponsedHandler(session, res) || "Hong lay duoc hình òi";
-    session.endDialog(defaultMsg);
+    if (num) {
+      console.log('get '+log+' '+num+' images');
+      const msgs = imagesResponsedHandler(session, res, log, num) || "Hong lay duoc hình òi";
+      msgs.forEach(function(element,index) {
+        setTimeout(function() {
+          element.text('hình thứ '+(index+1));
+          session.send(element);
+        }, index*1500);
+      }, this);
+      session.endDialog();
+    } else {
+      const defaultMsg = imageResponsedHandler(session, res) || "Hong lay duoc hình òi";
+      session.endDialog(defaultMsg);
+    }
+    clearNum();
   }).catch(function (err) {
     console.log('err', err);
     session.endDialog("Lỗi rồi");
+    clearNum();
   });
 }
 
