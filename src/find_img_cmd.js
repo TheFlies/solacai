@@ -37,6 +37,30 @@ function imageResponsedHandler(session, images) {
   return defaultMsg;
 }
 
+/**
+ * Compute 'find' message from wit.ai reponse data
+ * @param {*} data 
+ */
+const computeMessage = (data) => {
+  if (!data.entities.find) {
+    throw new Error('This is not `find` entity');
+  }
+  const find = data.entities.find.reduce( (max, f) => { 
+    return (f.confidence < max.confidence)?f:max;
+  }, data.entities.find[0]);
+
+  if (find) {
+    const query = data.entities.query
+      .filter( q => q.confidence>0.8 )
+      .map( q => q.value)
+      .join(' ');
+    return "tét hình "+query;
+  } else {
+    throw new Error('Can\'t find image query!');
+  }
+
+};
+
 function action(session, message) {
   session.send("đi kiếm hình là đi kiếm hình");
   const kb = message.split('tét hình');
@@ -66,5 +90,5 @@ function googleImageSearch(session, query) {
 }
 
 module.exports = {
-  googleImageSearch, action
+  googleImageSearch, action, computeMessage
 };

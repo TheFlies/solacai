@@ -14,6 +14,8 @@ const response = require('./response');
 const data = response.data;
 // message router
 const MessageRouter = require('./message_router');
+// wit.ai entities processor
+const EntitiesProcessor = require('./entities_processor');
 
 // Setup Restify Server
 const server = restify.createServer();
@@ -49,7 +51,7 @@ const drinkHandler = (entities) => {
   // get max confidence intent
   let drinkIntent = entities.drink
     .filter(d => d.confidence>=0.9)
-    .reduce((min, next) => Math.max(next.confidence, min.confidence), entities.drink[0]);
+    .reduce((max, next) => Math.max(next.confidence, max.confidence), entities.drink[0]);
   
   if (!drinkIntent) {
     throw new Error('We don\'t have enough confidence for drink')
@@ -58,12 +60,49 @@ const drinkHandler = (entities) => {
   let action = drinkIntent.value
 }
 
-// intents processor
-// const iProcessor = new IntentsProcessor();
-// iProcessor.register("drink", drinkHandler)
-// iProcessor.register("swear", swearHandler)
-// iProcessor.register("find", findHandler)
-// iProcessor.register("conversation", conversationHandler)
+// simple processors
+const simpleProcessor = {action: (session, msg) => session.endDialog(msg)};
+// validate the wit.ai response
+const validateWitAIMsg = (data,entity,value) => {
+  if (!data || !data.entities || !data.entities[entity]) {
+    throw new Error('This is not `'+entity+'` entity');
+  }
+  const e = data.entities[entity].reduce( (max, f) => { 
+    return (f.confidence < max.confidence)?f:max;
+  }, data.entities[entity][0])
+
+  if (!e || value != e['value']) {
+    throw new Error('Not enough confidence or not '+value);
+  }
+
+  return e;
+}
+
+const computeMsgDrinkLocation = (data) => {
+  validateWitAIMsg(data, "drink", "drink.location");
+  return response.pickRan(response.data.drinkLocation);
+};
+
+const computeMsgSwearMe = (data) => {
+  validateWitAIMsg(data, "swear", "swear.me");
+  return response.pickRan(response.data.swearMe);
+};
+
+const computeMsgConversationGreeting = (data) => {
+  validateWitAIMsg(data, "conversation", "conversation.greeting");
+  return response.pickRan(response.data.conversationGreeting);
+}
+
+// entities processor
+const iProcessor = new EntitiesProcessor();
+// - complex command
+iProcessor.register(FindImgCmd);
+// - simple command
+iProcessor.register(simpleProcessor, computeMsgDrinkLocation)
+iProcessor.register(simpleProcessor, computeMsgSwearMe)
+iProcessor.register(simpleProcessor, computeMsgConversationGreeting)
+// default - return confuse
+iProcessor.register(simpleProcessor, data => response.pickRan(response.data.confuse));
 
 // router
 const witAiHandler = {
@@ -71,22 +110,11 @@ const witAiHandler = {
     // --------------- processing using available ML wit.ai
     witClient.message(msg, {})
       .then(function (res) {
-        // 1. how to know the response's entities contain
-        //    drink swear find conversation
-        // 2. process base on response's entities intents
-
-        console.log('wit api returned JSON: \n' + JSON.stringify(res));
-        const intents = res.entities.drink || res.entities.swear || res.entities.find || res.entities.conversation || [];
-        const query = res.entities.query || null;
-        const resMsg = response.getMessage(intents, query, session) || response.pickRan(data.confuse);
-        if (resMsg && !res.entities.find) {
-          console.log("we don't need find anything so returned.");
-          session.endDialog(resMsg);
-        }
+        iProcessor.process(session, res)
       })
       .catch(function (err) {
-        console.log("error happened.", err);
-        session.endDialog(response.pickRan(data.confuse));
+        console.error("This should not happened, but seem we still having error.", err);
+        session.endDialog(response.pickRan(response.data.bug)+"\n"+JSON.stringify(err, Object.keys(err)));
       });
   }
 };

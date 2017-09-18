@@ -19,9 +19,15 @@ var swearMe = [
 
 var confuse = [
   "xin lỗi, em bị ngu",
-  "tôi không có nhà, vui lòng thử lại sau",
+  "xin lỗi, em chỉ là con bot.",
   "à, hiểu, mà hỏi người khác đi nha",
-  "đừng chọc em"
+  "trời xanh xanh ngát xanh gió tung tăng trên lá xanh!"
+];
+
+var bug = [
+  "bug!!! BUG!!!!!",
+  "lỗi nặng rồi!! CỨU với",
+  "xong! chắc server chết rồi!"
 ];
 
 var conversationGreeting = [
@@ -36,7 +42,8 @@ var data = {
   "drinkLocation": drinkLocation,
   "swearMe": swearMe,
   "confuse": confuse,
-  "conversationGreeting": conversationGreeting
+  "conversationGreeting": conversationGreeting,
+  "bug": bug
 };
 
 /**
