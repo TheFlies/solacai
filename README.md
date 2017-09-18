@@ -32,8 +32,3 @@ iProcessor.register(simpleProcessor, data => response.pickRan(response.data.conf
 
 ```
 - proactive mode: NOT implemented
-
-- cmds.register(FindImageCmd, AddReplyCmd, ... )
-- WitML.register(drink, conversation, swear, ... )
-
-Note: WitML might use some function of command for getting data/response?
