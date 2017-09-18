@@ -49,7 +49,7 @@ const witClient = new Wit({
  * a simple processor that end the session with message. For complex processor, create
  * a Command which implement action(session, message) function. Read FindImgCmd as example.
  */
-const simpleProcessor = {action: (session, msg) => session.endDialog(msg)};
+const simpleProcessor = { action: (session, msg) => session.endDialog(msg) };
 
 /**
  * validate the wit.ai response
@@ -57,16 +57,16 @@ const simpleProcessor = {action: (session, msg) => session.endDialog(msg)};
  * @param {*} entity The entity that we want to validate
  * @param {*} value The value that we want to process
  */
-const validateWitAIMsg = (data,entity,value) => {
+const validateWitAIMsg = (data, entity, value) => {
   if (!data || !data.entities || !data.entities[entity]) {
-    throw new Error('This is not `'+entity+'` entity');
+    throw new Error('This is not `' + entity + '` entity');
   }
-  const e = data.entities[entity].reduce( (max, f) => { 
-    return (f.confidence < max.confidence)?f:max;
+  const e = data.entities[entity].reduce((max, f) => {
+    return (f.confidence < max.confidence) ? f : max;
   }, data.entities[entity][0])
 
   if (!e || value != e['value']) {
-    throw new Error('Not enough confidence or not '+value);
+    throw new Error('Not enough confidence or not ' + value);
   }
 
   return e;
@@ -114,7 +114,7 @@ const witAiHandler = {
       })
       .catch(function (err) {
         console.error("This should not happened, but seem we still having error.", err);
-        session.endDialog(response.pickRan(response.data.bug)+"<br/>\n"+JSON.stringify(err, Object.keys(err)));
+        session.endDialog(response.pickRan(response.data.bug) + "<br/>\n" + JSON.stringify(err, Object.keys(err)));
       });
   }
 };
@@ -158,6 +158,38 @@ bot.dialog('default', function (session) {
   let msg = session.message.text;
   msg = removeBotInformation(session.message.address.bot, msg);
   router.handle(session, msg);
+});
+
+// proactiveDialog dialog
+bot.dialog('proactiveDialog', function (session, args) {
+
+  savedAddress = session.message.address;
+
+  var message = 'Mấy anh ơi, 5 giây nữa em gửi 1 cái message nha...';
+  session.send(message);
+
+  setTimeout(() => {
+    startProactiveDialog(savedAddress);
+  }, 5000);
+})
+.triggerAction({
+  matches: /^tét láo$/i,
+  confirmPrompt: "Anh có chắc hong? Hình như anh đang kẹt? Làm cái này là mất cái đang kẹt luôn á nha..."
+});
+
+// initiate a dialog proactively 
+function startProactiveDialog(address) {
+  bot.beginDialog(address, "*:survey");
+}
+
+// handle the proactive initiated dialog
+bot.dialog('survey', function (session, args, next) {
+  if (session.message.text === "nghỉ đi") {
+    session.send("Ôh, ngon rồi, em đi đây...");
+    session.endDialog();
+  } else {
+    session.send('Muốn nghỉ thì gõ "nghỉ đi" nha mấy anh');
+  }
 });
 
 function removeBotInformation(bot, msg) {
