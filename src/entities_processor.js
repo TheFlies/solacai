@@ -1,5 +1,6 @@
 /**
  * Simple, order matters, and dummy message routing
+ * original code by Huy Le: https://runkit.com/huylenq/59ba42457e8de600126d3810
  */
 class EntitiesProcessor {
   constructor() {
