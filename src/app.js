@@ -135,6 +135,7 @@ bot.on('contactRelationUpdate', function (message) {
 
 // ------------ Bot default handler
 bot.dialog('default', function (session) {
+  console.log("Message json: \n: "+JSON.stringify(session.message, null, 1));
   let msg = session.message.text;
   msg = removeBotInformation(session.message.address.bot, msg);
   router.handle(session, msg);
