@@ -115,7 +115,7 @@ const computeMessage = (data) => {
     }
 
     // logic
-    if (data.entities.number) {
+    if (data.entities.logic) {
       const logic = data.entities.logic
       .filter( q => q.confidence>0.8 )
       .map( q => q.value )[0];
