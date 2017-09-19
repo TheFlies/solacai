@@ -137,7 +137,9 @@ bot.on('contactRelationUpdate', function (message) {
 bot.dialog('default', function (session) {
   console.log("Message json: \n: "+JSON.stringify(session.message, null, 1));
   let msg = session.message.text;
-  msg = removeBotInformation(session.message.address.bot, msg);
+  let entities = session.message.entities;
+  let sourceEvent = session.message.sourceEvent;
+  msg = removeBotInformation(session.message.address.bot, entities, sourceEvent, msg);
   router.handle(session, msg);
 });
 
@@ -172,9 +174,17 @@ bot.dialog('survey', function (session, args, next) {
   }
 });
 
-function removeBotInformation(bot, msg) {
+function removeBotInformation(bot, entities, sourceEvent, msg) {
+  let ret = msg;
   if (bot) {
-    return msg
+    if (entities && sourceEvent && sourceEvent.text) {
+      if (sourceEvent.text.replace(/<\/?[^>]+(>|$)/g, "") === ret) {
+        let hashAt = entities.filter( (m) => m.id === bot.id )[0].text;
+        ret = sourceEvent.text.replace(hashAt, "").replace(/<\/?[^>]+(>|$)/g, "");
+      }
+    }
+
+    return ret
       .replace("@" + bot.name, "").trim()
       .replace("@" + bot.id, "").trim()
       .replace("@Ruồi Sờ Là Cai", "").trim(); // still need to remove cached old name
