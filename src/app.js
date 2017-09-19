@@ -178,9 +178,12 @@ function removeBotInformation(bot, entities, sourceEvent, msg) {
   let ret = msg;
   if (bot) {
     if (entities && sourceEvent && sourceEvent.text) {
-      if (sourceEvent.text.replace(/<\/?[^>]+(>|$)/g, "") === ret) {
-        let hashAt = entities.filter( (m) => m.id === bot.id )[0].text;
-        ret = sourceEvent.text.replace(hashAt, "").replace(/<\/?[^>]+(>|$)/g, "");
+      let st = sourceEvent.text;
+      if (st.replace(/<\/?[^>]+(>|$)/g, "") === ret) {
+        let hashAt = entities.filter( (m) => m.id === bot.id )[0];
+        if (hashAt) {
+          ret = st.replace(hashAt.text, "").replace(/<\/?[^>]+(>|$)/g, "");
+        }
       }
     }
 
