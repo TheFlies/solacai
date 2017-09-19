@@ -26,7 +26,7 @@ class EntitiesProcessor {
           return handler.action(session, msg);
         }
       } catch (e) {
-        console.debug(`Error occured! Skipping through next handler.`,e);
+        console.log(`Error occured! Skipping through next handler.`,e);
         // ignored
       }
     }
