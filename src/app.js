@@ -180,9 +180,10 @@ function removeBotInformation(bot, entities, sourceEvent, msg) {
     if (entities && sourceEvent && sourceEvent.text) {
       let st = sourceEvent.text;
       if (st.replace(/<\/?[^>]+(>|$)/g, "") === ret) {
-        let hashAt = entities.filter( (m) => m.id === bot.id )[0];
+        let hashAt = entities.filter( (m) => m.mentioned && m.mentioned.id === bot.id )[0];
         if (hashAt) {
-          ret = st.replace(hashAt.text, "").replace(/<\/?[^>]+(>|$)/g, "");
+          console.log('Oh we got mentioned - '+m.text)
+          ret = st.replace(hashAt.mentioned.text, "").replace(/<\/?[^>]+(>|$)/g, "");
         }
       }
     }
