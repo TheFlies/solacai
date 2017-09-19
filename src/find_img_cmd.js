@@ -74,7 +74,7 @@ function imagesResponsedHandler(session, images, log, num) {
 }
 
 function imageResponsedHandler(session, images) {
-  let defaultMsg;
+  let defaultMsg = "Hong lay duoc hình òi";
   if (images && images.items) {
     const r = images.items[util.getRandomInt(0, images.items.length-1)];
     if (r) {
@@ -96,7 +96,7 @@ const computeMessage = (data) => {
   let find = validateWitAIMsg(data,'find','find.image');
   if (find) {
     const query = data.entities.query
-      .filter( q => q.confidence>0.8 )
+      .filter( q => q.confidence>0.9 )
       .map( q => q.value)
       .join(' ');
     // number
@@ -154,7 +154,7 @@ function googleImageSearch(session, query) {
   }).then(function (res) {
     if (num) {
       console.log('get '+log+' '+num+' images');
-      const msgs = imagesResponsedHandler(session, res, log, num) || "Hong lay duoc hình òi";
+      const msgs = imagesResponsedHandler(session, res, log, num);
       msgs.forEach(function(element,index) {
         setTimeout(function() {
           element.text('hình thứ '+(index+1));
@@ -163,7 +163,7 @@ function googleImageSearch(session, query) {
       }, this);
       session.endDialog();
     } else {
-      const defaultMsg = imageResponsedHandler(session, res) || "Hong lay duoc hình òi";
+      const defaultMsg = imageResponsedHandler(session, res);
       session.endDialog(defaultMsg);
     }
     clearNum();
