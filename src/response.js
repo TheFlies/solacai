@@ -66,17 +66,41 @@ function pickRan(dic) {
 
 function setDatabase(db) {
   solacaiDatabase = db;
+  
+  db.collection('drinkLocation').find({}).toArray().then((res)=> {
+    if (!res.length) db.collection('drinkLocation').insert(drinkLocation.map(s => {return {"value":s};}));
+    else
+      data.drinkLocation = res.map(v => v.value);
+  })
 
-  let dcol = db.collection('drinkLocation');
-  // initialize db if empty
-  dcol.find({}, function(err, dls) {
-    data.drinkLocation = [];
-    dls.each((err, dl) => {
-      data.drinkLocation.push(dl);
-    });
-    if (data.drinkLocation.length==0) {
-      data.drinkLocation = drinkLocation.map((s) => {return {"value":s};} );
-    }
+  db.collection('swearMe').find({}).toArray().then((res)=> {
+    if (!res.length) db.collection('swearMe').insert(swearMe.map(s => {return {"value":s};}));
+    else
+      data.swearMe = res.map(v => v.value);
+  });
+
+  db.collection('confuse').find({}).toArray().then((res)=> {
+    if (!res.length) db.collection('confuse').insert(confuse.map(s => {return {"value":s};}));
+    else
+      data.confuse = res.map(v => v.value);
+  });
+
+  db.collection('conversationGreeting').find({}).toArray().then((res)=> {
+    if (!res.length) db.collection('conversationGreeting').insert(conversationGreeting.map(s => {return {"value":s};}));
+    else
+      data.conversationGreeting = res.map(v => v.value);
+  });
+
+  db.collection('conversationBye').find({}).toArray().then((res)=> {
+    if (!res.length) db.collection('conversationBye').insert(conversationBye.map(s => {return {"value":s};}));
+    else
+      data.conversationBye = res.map(v => v.value);
+  });
+
+  db.collection('bug').find({}).toArray().then((res)=> {
+    if (!res.length) db.collection('bug').insert(bug.map(s => {return {"value":s};}));
+    else
+      data.bug = res.map(v => v.value);
   });
 }
 
