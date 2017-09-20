@@ -106,17 +106,25 @@ mongoClient.connect(uri).then((db) => {
     }
   };
 
-  const dababaseHandler = {
-    action: (session, msg) => {
-
-    }
-  };
-
   const helpHandler = {
     action: (session, msg) => {
-      session.endDialog(" Hướng dẫn là hong có hướng dẫn :D.")
-    }
-  };
+      
+      // Send a greeting and show help.
+      var card = new builder.ThumbnailCard(session)
+      .title("Con bướm xinh")
+      .subtitle('Con bướm xinh con bướm xinh, con bướm đa tình.')
+      .images([
+           builder.CardImage.create(session, "http://9mobi.vn/cf/images/2015/03/nkk/hinh-nen-co-gai-cho-dien-thoai-6.jpg")
+      ]);
+
+      var msg = new builder.Message(session).text(" hướng dẫn đi sau nha :D.").attachments([card]);
+      session.send(msg);
+      session.endDialog(`Gõ: 
+1. tét hình query : tìm hình trên gu gồ với \`\`\`query\`\`\`
+2. hép : hiện lên cái này
+3. tùm lum cũng được em trả lời nha mấy anh
+                        `);
+  }};
 
   const router = new MessageRouter();
 
@@ -124,7 +132,7 @@ mongoClient.connect(uri).then((db) => {
   router.register(/^tét hình .*$/, FindImgCmd);
   router.register(/^db: .*$/, databaseCmd);
   // router.register(/^tét láo .*$/, TestProactiveCmd);
-  router.register(/^hép .*$/, helpHandler);
+  router.register(/^hép.*$/, helpHandler);
   router.register(/.*/, witAiHandler);
 
   // ok bot
