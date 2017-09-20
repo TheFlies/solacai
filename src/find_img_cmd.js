@@ -76,7 +76,7 @@ function imagesResponsedHandler(session, images, log, num) {
 function imageResponsedHandler(session, images) {
   let defaultMsg = "Hong lay duoc hình òi";
   if (images && images.items) {
-    const r = images.items[util.getRandomInt(0, images.items.length-1)];
+    const r = util.pickRan(images.items);
     if (r) {
       const url = r.link;
       const type = r.mime;
