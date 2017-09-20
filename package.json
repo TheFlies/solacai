@@ -12,6 +12,7 @@
     "another-rest-client": "^0.3.4",
     "botbuilder": "^3.9.1",
     "dotenv": "^4.0.0",
+    "mongodb": "^2.2.31",
     "node-wit": "^4.3.0",
     "restify": "^5.2.0",
     "xmlhttprequest": "^1.8.0"

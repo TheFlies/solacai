@@ -1,6 +1,8 @@
 var FindImgCmd = require('./find_img_cmd');
 var util = require('./util');
 
+var solacaiDatabase;
+
 //----------------------
 // The response dictionary
 var drinkLocation = [
@@ -62,6 +64,27 @@ function pickRan(dic) {
   return dic[rnum] || dic[0];
 }
 
+function setDatabase(db) {
+  solacaiDatabase = db;
+
+  let dcol = db.collection('drinkLocation');
+  // initialize db if empty
+  dcol.find({}, function(err, dls) {
+    data.drinkLocation = [];
+    dls.each((err, dl) => {
+      data.drinkLocation.push(dl);
+    });
+    if (data.drinkLocation.length==0) {
+      data.drinkLocation = drinkLocation.map((s) => {return {"value":s};} );
+    }
+  });
+}
+
+function list(c, q) {
+  // TODO fix query
+  return solacaiDatabase.collection(c).find({}).toArray();
+}
+
 module.exports = {
-  data, pickRan
+  data, pickRan, setDatabase, list
 }

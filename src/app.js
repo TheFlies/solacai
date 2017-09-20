@@ -2,6 +2,7 @@ const dotenv = require('dotenv');
 // There's no need to check if .env exists, dotenv will check this // for you. It will show a small warning which can be disabled when // using this in production.
 dotenv.load();
 
+const mongodb = require('mongodb');
 const restify = require('restify');
 const builder = require('botbuilder');
 
@@ -19,11 +20,22 @@ const MessageRouter = require('./message_router');
 const EntitiesProcessor = require('./entities_processor').EntitiesProcessor;
 const validateWitAIMsg = require('./entities_processor').validateWitAIMsg;
 
+// Setup MongoDB
+const uri = process.env.PROD_MONGODB;
+const mongoClient = mongodb.MongoClient;
+
 // Setup Restify Server
 const server = restify.createServer();
-server.listen(process.env.port || process.env.PORT || 3978, function () {
-  console.log('%s listening to %s', server.name, server.url);
-});
+
+mongoClient.connect(uri, function(err, db) {
+  if (err) throw err;
+  response.setDatabase(db);
+
+  // start server after DB connection is ready
+  server.listen(process.env.port || process.env.PORT || 3978, function () {
+    console.log('%s listening to %s', server.name, server.url);
+  });
+})
 
 // Create chat connector for communicating with the Bot Framework Service
 const connector = new builder.ChatConnector({
@@ -37,14 +49,13 @@ const witToken = {
 };
 
 //-----------------------
-
-// Listen for messages from users 
-server.post('/api/messages', connector.listen());
-
 // wit client
 const witClient = new Wit({
   accessToken: witToken.server
 });
+
+// Listen for messages from users 
+server.post('/api/messages', connector.listen());
 
 /**
  * a simple processor that end the session with message. For complex processor, create
@@ -99,16 +110,38 @@ const witAiHandler = {
   }
 };
 
+const dababaseHandler = {
+  action: (session, msg) => {
+    let data = msg.split('db: ')[1].split(' ');
+    let cmd = data.shift().trim();
+    switch (cmd) {
+      case 'list':
+      let collection = data.shift().trim();
+      response
+        .list(collection, data)
+        .then((res)=>{
+          session.endDialog(JSON.stringify(res),null,2);
+        })
+        .catch((err)=>{session.endDialog("lấy ko được data. code lại đi")});
+      break;
+      default:
+      session.endDialog("unknown command");
+      break;
+    }
+  }
+};
+
 const helpHandler = {
   action: (session, msg) => {
     session.endDialog(" Hướng dẫn là hong có hướng dẫn :D.")
   }
-}
+};
 
 const router = new MessageRouter();
 
 // Order matters!
 router.register(/^tét hình .*$/, FindImgCmd);
+router.register(/^db: .*$/, dababaseHandler);
 // router.register(/^tét láo .*$/, TestProactiveCmd);
 router.register(/^hép .*$/, helpHandler);
 router.register(/.*/, witAiHandler);
@@ -135,7 +168,7 @@ bot.on('contactRelationUpdate', function (message) {
 
 // ------------ Bot default handler
 bot.dialog('default', function (session) {
-  console.log("Message json: \n: "+JSON.stringify(session.message, null, 1));
+  // console.log("Message json: \n: "+JSON.stringify(session.message, null, 1));
   let msg = session.message.text;
   let entities = session.message.entities;
   let sourceEvent = session.message.sourceEvent;
