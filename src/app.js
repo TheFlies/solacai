@@ -79,6 +79,11 @@ mongoClient.connect(uri).then((db) => {
     return util.pickRan(replyDataSource.conversationBye);
   }
 
+  const computeMsgConversationKhen = (data) => {
+    validateWitAIMsg(data, "conversation", "conversation.khen");
+    return util.pickRan(replyDataSource.conversationKhen);
+  }
+
   // entities processor
   const iProcessor = new EntitiesProcessor();
   // - complex command
@@ -88,6 +93,7 @@ mongoClient.connect(uri).then((db) => {
   iProcessor.register(simpleProcessor, computeMsgSwearMe)
   iProcessor.register(simpleProcessor, computeMsgConversationGreeting)
   iProcessor.register(simpleProcessor, computeMsgConversationBye)
+  iProcessor.register(simpleProcessor, computeMsgConversationKhen)
   // default - return confuse
   iProcessor.register(simpleProcessor, data => util.pickRan(replyDataSource.confuse));
 
@@ -212,9 +218,11 @@ mongoClient.connect(uri).then((db) => {
       }
 
       return ret
-        .replace("@" + bot.name, "").trim()
-        .replace("@" + bot.id, "").trim()
-        .replace("@Ruồi Sờ Là Cai", "").trim(); // still need to remove cached old name
+        .replace('@' + bot.name, '')
+        .replace('@' + bot.id, '')
+        .replace('Edited previous message:','')
+        .replace(/<e_m[^>]*>.*<\/e_m>/, '')
+        .replace('@Ruồi Sờ Là Cai', '').trim(); // still need to remove cached old name
     }
 
     return msg;

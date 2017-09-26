@@ -41,12 +41,20 @@ var conversationBye = [
   "good bye"
 ];
 
+var conversationKhen = [
+  "chiện nhỏ",
+  "(heart)",
+  "cảm ơn",
+  "mọi chuyện dễ cứ để em lo cho"
+];
+
 var data = {
   "drinkLocation": drinkLocation,
   "swearMe": swearMe,
   "confuse": confuse,
   "conversationGreeting": conversationGreeting,
   "conversationBye": conversationBye,
+  "conversationKhen": conversationKhen,
   "bug": bug
 };
 
@@ -89,42 +97,60 @@ class DatabaseCmd {
     return this._db.collection(c).find({}).toArray();
   }
 
+
+
   initialize() {
-    this._db.collection('drinkLocation').find({}).toArray().then((res)=> {
-      if (!res.length) this._db.collection('drinkLocation').insert(drinkLocation.map(s => {return {"value":s};}));
-      else
-        data.drinkLocation = res.map(v => v.value);
-    })
-  
-    this._db.collection('swearMe').find({}).toArray().then((res)=> {
-      if (!res.length) this._db.collection('swearMe').insert(swearMe.map(s => {return {"value":s};}));
-      else
-        data.swearMe = res.map(v => v.value);
+
+    Object.keys(data).forEach(val => {
+      console.log(`${val} : ${data[val]}`);
+      this._db.collection(val).find({}).toArray().then((res) => {
+        if (!res.length) this._db.collection(val).insert(data[val].map(s => {return {"value":s};}));
+        else
+          data[val] = res.map(v => v.value);
+      })
     });
+
+    // this._db.collection('drinkLocation').find({}).toArray().then((res)=> {
+    //   if (!res.length) this._db.collection('drinkLocation').insert(drinkLocation.map(s => {return {"value":s};}));
+    //   else
+    //     data.drinkLocation = res.map(v => v.value);
+    // })
   
-    this._db.collection('confuse').find({}).toArray().then((res)=> {
-      if (!res.length) this._db.collection('confuse').insert(confuse.map(s => {return {"value":s};}));
-      else
-        data.confuse = res.map(v => v.value);
-    });
+    // this._db.collection('swearMe').find({}).toArray().then((res)=> {
+    //   if (!res.length) this._db.collection('swearMe').insert(swearMe.map(s => {return {"value":s};}));
+    //   else
+    //     data.swearMe = res.map(v => v.value);
+    // });
   
-    this._db.collection('conversationGreeting').find({}).toArray().then((res)=> {
-      if (!res.length) this._db.collection('conversationGreeting').insert(conversationGreeting.map(s => {return {"value":s};}));
-      else
-        data.conversationGreeting = res.map(v => v.value);
-    });
+    // this._db.collection('confuse').find({}).toArray().then((res)=> {
+    //   if (!res.length) this._db.collection('confuse').insert(confuse.map(s => {return {"value":s};}));
+    //   else
+    //     data.confuse = res.map(v => v.value);
+    // });
   
-    this._db.collection('conversationBye').find({}).toArray().then((res)=> {
-      if (!res.length) this._db.collection('conversationBye').insert(conversationBye.map(s => {return {"value":s};}));
-      else
-        data.conversationBye = res.map(v => v.value);
-    });
+    // this._db.collection('conversationGreeting').find({}).toArray().then((res)=> {
+    //   if (!res.length) this._db.collection('conversationGreeting').insert(conversationGreeting.map(s => {return {"value":s};}));
+    //   else
+    //     data.conversationGreeting = res.map(v => v.value);
+    // });
   
-    this._db.collection('bug').find({}).toArray().then((res)=> {
-      if (!res.length) this._db.collection('bug').insert(bug.map(s => {return {"value":s};}));
-      else
-        data.bug = res.map(v => v.value);
-    });
+    // this._db.collection('conversationBye').find({}).toArray().then((res)=> {
+    //   if (!res.length) this._db.collection('conversationBye').insert(conversationBye.map(s => {return {"value":s};}));
+    //   else
+    //     data.conversationBye = res.map(v => v.value);
+    // });
+
+    // this._db.collection('conversationKhen').find({}).toArray().then((res)=> {
+    //   if (!res.length) this._db.collection('conversationKhen').insert(conversationKhen.map(s => {return {"value":s};}));
+    //   else
+    //     data.conversationKhen = res.map(v => v.value);
+    // });
+  
+    // this._db.collection('bug').find({}).toArray().then((res)=> {
+    //   if (!res.length) this._db.collection('bug').insert(bug.map(s => {return {"value":s};}));
+    //   else
+    //     data.bug = res.map(v => v.value);
+    // });
   }
 }
 
