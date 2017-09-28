@@ -76,15 +76,20 @@ class DatabaseCmd {
   action(session, msg) {
     let data = msg.split('db: ')[1].split(' ');
     let cmd = data.shift().trim();
+    let collection = data.shift().trim();
     switch (cmd) {
       case 'list':
-      let collection = data.shift().trim();
       this
         .list(collection, data)
         .then((res)=>{
           session.endDialog(JSON.stringify(res),null,2);
         })
         .catch((err)=>{session.endDialog("lấy ko được data. code lại đi")});
+      break;
+      case 'add':
+      let value = data.join(' ')
+      this.save(collection, value).then((res)=>session.endDialog(JSON.stringify(res),null,2))
+        .catch((err)=>session.endDialog("ko save được rồi"))
       break;
       default:
       session.endDialog("unknown command");
@@ -97,7 +102,9 @@ class DatabaseCmd {
     return this._db.collection(c).find({}).toArray();
   }
 
-
+  save(c, v) {
+    return this._db.collection(c).insertOne({"value":v})
+  }
 
   initialize() {
 
@@ -109,48 +116,6 @@ class DatabaseCmd {
           data[val] = res.map(v => v.value);
       })
     });
-
-    // this._db.collection('drinkLocation').find({}).toArray().then((res)=> {
-    //   if (!res.length) this._db.collection('drinkLocation').insert(drinkLocation.map(s => {return {"value":s};}));
-    //   else
-    //     data.drinkLocation = res.map(v => v.value);
-    // })
-  
-    // this._db.collection('swearMe').find({}).toArray().then((res)=> {
-    //   if (!res.length) this._db.collection('swearMe').insert(swearMe.map(s => {return {"value":s};}));
-    //   else
-    //     data.swearMe = res.map(v => v.value);
-    // });
-  
-    // this._db.collection('confuse').find({}).toArray().then((res)=> {
-    //   if (!res.length) this._db.collection('confuse').insert(confuse.map(s => {return {"value":s};}));
-    //   else
-    //     data.confuse = res.map(v => v.value);
-    // });
-  
-    // this._db.collection('conversationGreeting').find({}).toArray().then((res)=> {
-    //   if (!res.length) this._db.collection('conversationGreeting').insert(conversationGreeting.map(s => {return {"value":s};}));
-    //   else
-    //     data.conversationGreeting = res.map(v => v.value);
-    // });
-  
-    // this._db.collection('conversationBye').find({}).toArray().then((res)=> {
-    //   if (!res.length) this._db.collection('conversationBye').insert(conversationBye.map(s => {return {"value":s};}));
-    //   else
-    //     data.conversationBye = res.map(v => v.value);
-    // });
-
-    // this._db.collection('conversationKhen').find({}).toArray().then((res)=> {
-    //   if (!res.length) this._db.collection('conversationKhen').insert(conversationKhen.map(s => {return {"value":s};}));
-    //   else
-    //     data.conversationKhen = res.map(v => v.value);
-    // });
-  
-    // this._db.collection('bug').find({}).toArray().then((res)=> {
-    //   if (!res.length) this._db.collection('bug').insert(bug.map(s => {return {"value":s};}));
-    //   else
-    //     data.bug = res.map(v => v.value);
-    // });
   }
 }
 
