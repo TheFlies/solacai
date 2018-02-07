@@ -155,11 +155,12 @@ function googleImageSearch(session, query) {
     if (num) {
       console.log('get '+log+' '+num+' images');
       const msgs = imagesResponsedHandler(session, res, log, num);
+
       msgs.forEach(function(element,index) {
         setTimeout(function() {
           element.text('hình thứ '+(index+1));
           if (index+1===num) {
-            session.endDialog(element);
+            session.endConversation(element);
           } else {
             session.send(element);
           }
