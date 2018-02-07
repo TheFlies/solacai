@@ -163,7 +163,7 @@ function googleImageSearch(session, query) {
           } else {
             session.send(element);
           }
-        }, index*1500);
+        }, (index+1)*1500);
       }, this);
     } else {
       const defaultMsg = imageResponsedHandler(session, res);
