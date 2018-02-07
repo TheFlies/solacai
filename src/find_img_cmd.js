@@ -159,7 +159,7 @@ function googleImageSearch(session, query) {
         setTimeout(function() {
           element.text('hình thứ '+(index+1));
           session.send(element);
-        }, index*3000);
+        }, index*1500);
       }, this);
       session.endDialog();
     } else {
