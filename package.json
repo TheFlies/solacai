@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "another-rest-client": "^0.3.4",
-    "botbuilder": "^3.9.1",
+    "botbuilder": "^3.14.0",
     "dotenv": "^4.0.0",
     "mongodb": "^2.2.31",
     "node-wit": "^4.3.0",

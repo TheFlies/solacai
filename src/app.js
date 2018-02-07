@@ -142,11 +142,12 @@ mongoClient.connect(uri).then((db) => {
   router.register(/.*/, witAiHandler);
 
   // ok bot
+  let inMemoryStorage = new builder.MemoryBotStorage();
   const bot = new builder.UniversalBot(connector, [
     function (session) {
       session.beginDialog('default');
     }
-  ]);
+  ]).set('storage', inMemoryStorage); // register in-memory storage
 
   // ------------ Bot event handler
   bot.on('contactRelationUpdate', function (message) {
