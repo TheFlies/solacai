@@ -158,10 +158,13 @@ function googleImageSearch(session, query) {
       msgs.forEach(function(element,index) {
         setTimeout(function() {
           element.text('hình thứ '+(index+1));
-          session.send(element);
+          if (index+1===num) {
+            session.endDialog(element);
+          } else {
+            session.send(element);
+          }
         }, index*1500);
       }, this);
-      session.endDialog();
     } else {
       const defaultMsg = imageResponsedHandler(session, res);
       session.endDialog(defaultMsg);
