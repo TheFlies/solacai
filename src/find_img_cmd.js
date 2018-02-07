@@ -96,7 +96,7 @@ const computeMessage = (data) => {
   let find = validateWitAIMsg(data,'find','find.image');
   if (find) {
     const query = data.entities.query
-      .filter( q => q.confidence>0.9 )
+      .filter( q => q.confidence>0.8 )
       .map( q => q.value)
       .join(' ');
     // number
@@ -159,7 +159,7 @@ function googleImageSearch(session, query) {
         setTimeout(function() {
           element.text('hình thứ '+(index+1));
           session.send(element);
-        }, index*1500);
+        }, index*3000);
       }, this);
       session.endDialog();
     } else {
