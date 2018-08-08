@@ -11,6 +11,7 @@ const Wit = require('node-wit').Wit;
 const mongodb = require('mongodb');
 const FindImgCmd = require('./find_img_cmd');
 const DatabaseCmd = require('./database_cmd').DatabaseCmd;
+const lottCmd = require('./lott_cmd');
 
 // util
 const util = require('./util');
@@ -57,30 +58,32 @@ mongoClient.connect(uri).then((db) => {
    * a simple processor that end the session with message. For complex processor, create
    * a Command which implement action(session, message) function. Read FindImgCmd as example.
    */
-  const simpleProcessor = { action: (session, msg) => session.endDialog(msg) };
+  const simpleProcessor = {
+    action: (session, msg) => session.endDialog(msg)
+  };
 
   const computeMsgDrinkLocation = (data) => {
-    validateWitAIMsg(data, "drink", "drink.location");
+    validateWitAIMsg(data, 'drink', 'drink.location');
     return util.pickRan(replyDataSource.drinkLocation);
   };
 
   const computeMsgSwearMe = (data) => {
-    validateWitAIMsg(data, "swear", "swear.me");
+    validateWitAIMsg(data, 'swear', 'swear.me');
     return util.pickRan(replyDataSource.swearMe);
   };
 
   const computeMsgConversationGreeting = (data) => {
-    validateWitAIMsg(data, "conversation", "conversation.greeting");
+    validateWitAIMsg(data, 'conversation', 'conversation.greeting');
     return util.pickRan(replyDataSource.conversationGreeting);
   }
 
   const computeMsgConversationBye = (data) => {
-    validateWitAIMsg(data, "conversation", "conversation.bye");
+    validateWitAIMsg(data, 'conversation', 'conversation.bye');
     return util.pickRan(replyDataSource.conversationBye);
   }
 
   const computeMsgConversationKhen = (data) => {
-    validateWitAIMsg(data, "conversation", "conversation.khen");
+    validateWitAIMsg(data, 'conversation', 'conversation.khen');
     return util.pickRan(replyDataSource.conversationKhen);
   }
 
@@ -106,38 +109,40 @@ mongoClient.connect(uri).then((db) => {
           iProcessor.process(session, res)
         })
         .catch(function (err) {
-          console.error("This should not happened, but seem we still having error.", err);
-          session.endDialog(util.pickRan(replyDataSource.bug) + "<br/>\n" + JSON.stringify(err, Object.keys(err)));
+          console.error('This should not happened, but seem we still having error.', err);
+          session.endDialog(util.pickRan(replyDataSource.bug) + '<br/>\n' + JSON.stringify(err, Object.keys(err)));
         });
     }
   };
 
   const helpHandler = {
     action: (session, msg) => {
-      
+
       // Send a greeting and show help.
       var card = new builder.ThumbnailCard(session)
-      .title("Con bướm xinh")
-      .subtitle('Con bướm xinh con bướm xinh, con bướm đa tình.')
-      .images([
-           builder.CardImage.create(session, "http://9mobi.vn/cf/images/2015/03/nkk/hinh-nen-co-gai-cho-dien-thoai-6.jpg")
-      ]);
+        .title('Con bướm xinh')
+        .subtitle('Con bướm xinh con bướm xinh, con bướm đa tình.')
+        .images([
+          builder.CardImage.create(session, 'http://9mobi.vn/cf/images/2015/03/nkk/hinh-nen-co-gai-cho-dien-thoai-6.jpg')
+        ]);
 
-      var msg = new builder.Message(session).text(" hướng dẫn đi sau nha :D.").attachments([card]);
+      var msg = new builder.Message(session).text(' hướng dẫn đi sau nha :D.').attachments([card]);
       session.send(msg);
       session.endDialog(`Gõ: 
 1. tét hình query : tìm hình trên gu gồ với \`\`\`query\`\`\`
 2. hép : hiện lên cái này
+3. vietlott: lấy số VietLott, trúng nhớ bao em nha
 3. tùm lum cũng được em trả lời nha mấy anh
                         `);
-  }};
+    }
+  };
 
   const router = new MessageRouter();
 
   // Order matters!
   router.register(/^tét hình .*$/, FindImgCmd);
   router.register(/^db: .*$/, databaseCmd);
-  // router.register(/^tét láo .*$/, TestProactiveCmd);
+  router.register(/^vietlott$/, lottCmd);
   router.register(/^hép.*$/, helpHandler);
   router.register(/.*/, witAiHandler);
 
@@ -155,7 +160,7 @@ mongoClient.connect(uri).then((db) => {
       const name = message.user ? message.user.name : null;
       const reply = new builder.Message()
         .address(message.address)
-        .text("Chào anh %s... em là %s", name || 'ấy', message.address.bot.name || 'bum búm');
+        .text('Chào anh %s... em là %s', name || 'ấy', message.address.bot.name || 'bum búm');
       bot.send(reply);
     } else {
       // delete their data
@@ -164,7 +169,7 @@ mongoClient.connect(uri).then((db) => {
 
   // ------------ Bot default handler
   bot.dialog('default', function (session) {
-    // console.log("Message json: \n: "+JSON.stringify(session.message, null, 1));
+    // console.log('Message json: \n: '+JSON.stringify(session.message, null, 1));
     let msg = session.message.text;
     let entities = session.message.entities;
     let sourceEvent = session.message.sourceEvent;
@@ -182,24 +187,23 @@ mongoClient.connect(uri).then((db) => {
     setTimeout(() => {
       startProactiveDialog(savedAddress);
     }, 5000);
-  })
-    .triggerAction({
-      matches: /^(@bướm )?tét láo$/i,
-      confirmPrompt: "Anh có chắc hong? Hình như anh đang kẹt? Làm cái này là mất cái đang kẹt luôn á nha..."
-    });
+  }).triggerAction({
+    matches: /^(@bướm )?tét láo$/i,
+    confirmPrompt: 'Anh có chắc hong? Hình như anh đang kẹt? Làm cái này là mất cái đang kẹt luôn á nha...'
+  });
 
   // initiate a dialog proactively 
   function startProactiveDialog(address) {
-    bot.beginDialog(address, "*:survey");
+    bot.beginDialog(address, '*:survey');
   }
 
   // handle the proactive initiated dialog
   bot.dialog('survey', function (session, args, next) {
     if (session.message.text.match(/^(@bướm )?nghỉ đi$/i)) {
-      session.send("Ôh, ngon rồi, em đi đây...");
+      session.send('Ôh, ngon rồi, em đi đây...');
       session.endDialog();
     } else {
-      session.send('Muốn nghỉ thì gõ "@bướm nghỉ đi" nha mấy anh');
+      session.send('Muốn nghỉ thì gõ \'@bướm nghỉ đi\' nha mấy anh');
     }
   });
 
@@ -208,11 +212,11 @@ mongoClient.connect(uri).then((db) => {
     if (bot) {
       if (entities && sourceEvent && sourceEvent.text) {
         let st = sourceEvent.text;
-        if (st.replace(/<\/?[^>]+(>|$)/g, "") === ret) {
+        if (st.replace(/<\/?[^>]+(>|$)/g, '') === ret) {
           let hashAt = entities.filter((m) => m.mentioned && bot.id === m.mentioned.id)[0];
           if (hashAt) {
             console.log('Oh we got mentioned - ' + JSON.stringify(hashAt));
-            ret = st.replace(hashAt.text, "").replace(/<\/?[^>]+(>|$)/g, "");
+            ret = st.replace(hashAt.text, '').replace(/<\/?[^>]+(>|$)/g, '');
             console.log('cleaned return value: ' + ret);
           }
         }
@@ -221,7 +225,7 @@ mongoClient.connect(uri).then((db) => {
       return ret
         .replace('@' + bot.name, '')
         .replace('@' + bot.id, '')
-        .replace('Edited previous message:','')
+        .replace('Edited previous message:', '')
         .replace(/<e_m[^>]*>.*<\/e_m>/, '')
         .replace('@Ruồi Sờ Là Cai', '').trim(); // still need to remove cached old name
     }

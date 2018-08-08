@@ -4,7 +4,7 @@ const RestClient = require('another-rest-client');
 const api = new RestClient('https://www.googleapis.com/customsearch/v1');
 const builder = require('botbuilder');
 
-const validateWitAIMsg = require('./entities_processor').validateWitAIMsg
+const validateWitAIMsg = require('./entities_processor').validateWitAIMsg;
 const util = require('./util');
 
 var num = 0;
@@ -33,10 +33,10 @@ function buildImageAttachedMsg(session, url, contentType, attachmentFileName) {
 function getRandomArrayElements(arr, count) {
   var shuffled = arr.slice(0), i = arr.length, min = i - count, temp, index;
   while (i-- > min) {
-      index = Math.floor((i + 1) * Math.random());
-      temp = shuffled[index];
-      shuffled[index] = shuffled[i];
-      shuffled[i] = temp;
+    index = Math.floor((i + 1) * Math.random());
+    temp = shuffled[index];
+    shuffled[index] = shuffled[i];
+    shuffled[i] = temp;
   }
   return shuffled.slice(min);
 }
@@ -53,17 +53,17 @@ function imagesResponsedHandler(session, images, log, num) {
     let imgs;
     switch (log) {
       case 'first':
-      imgs = images.items.slice(0,number);
-      break;
+        imgs = images.items.slice(0, number);
+        break;
       
       case 'last':
-      imgs = images.items.slice(Math.max(images.items.length - number, 1));
-      break;
+        imgs = images.items.slice(Math.max(images.items.length - number, 1));
+        break;
 
       case 'random':
       default:
-      imgs = getRandomArrayElements(images.items, number);
-      break;
+        imgs = getRandomArrayElements(images.items, number);
+        break;
     }
 
     defaultMsgs = imgs
@@ -74,7 +74,7 @@ function imagesResponsedHandler(session, images, log, num) {
 }
 
 function imageResponsedHandler(session, images) {
-  let defaultMsg = "Hong lay duoc hình òi";
+  let defaultMsg = 'Hong lay duoc hình òi';
   if (images && images.items) {
     const r = util.pickRan(images.items);
     if (r) {
@@ -93,7 +93,7 @@ function imageResponsedHandler(session, images) {
  * @param {*} data 
  */
 const computeMessage = (data) => {
-  let find = validateWitAIMsg(data,'find','find.image');
+  let find = validateWitAIMsg(data, 'find', 'find.image');
   if (find) {
     const query = data.entities.query
       .filter( q => q.confidence>0.8 )
@@ -106,10 +106,10 @@ const computeMessage = (data) => {
         .map( q => parseInt(q.value))
         .reduce((max, f) => {
           return (f < max) ? max : f;
-        }, 0)
+        }, 0);
       
       if (number) {
-        console.log("found number: "+number);
+        console.log('found number: '+number);
         num = number;
       }
     }
@@ -117,17 +117,17 @@ const computeMessage = (data) => {
     // logic
     if (data.entities.logic) {
       const logic = data.entities.logic
-      .filter( q => q.confidence>0.8 )
-      .map( q => q.value )[0];
+        .filter( q => q.confidence>0.8 )
+        .map( q => q.value )[0];
 
       if (logic) {
-        console.log("found logic: "+JSON.stringify(logic));
+        console.log('found logic: '+JSON.stringify(logic));
         log = logic;
       }
     }
     
     if (query) {
-      return "tét hình "+query;
+      return 'tét hình '+query;
     }
   }
   throw new Error('Can\'t calculate the query for searching image!');
@@ -139,24 +139,24 @@ function action(session, message) {
     session.send('em đang đi kiếm hình `'+kb[1]+'` nhe anh, đợi em 1 tí...');
     googleImageSearch(session, kb[1].trim());
   } else {
-    session.endDialog("code lỗi rồi");
+    session.endDialog('code lỗi rồi');
   }
 }
 
 function googleImageSearch(session, query) {
-  console.log("searching on gu gồ");
+  console.log('searching on gu gồ');
   api.get({
     q: query,
     cx: process.env.GOOGLE_CUSTOM_SEARCH_ENGINE_ID,
-    searchType: "image",
-    fields: "items(link,mime)",
+    searchType: 'image',
+    fields: 'items(link,mime)',
     key: process.env.GOOGLE_API_KEY
   }).then(function (res) {
     if (num) {
       console.log('get '+log+' '+num+' images');
       const msgs = imagesResponsedHandler(session, res, log, num);
 
-      msgs.forEach(function(element,index) {
+      msgs.forEach(function(element, index) {
         setTimeout(function() {
           element.text('hình thứ '+(index+1));
           if (index+1===num) {
@@ -173,7 +173,7 @@ function googleImageSearch(session, query) {
     clearNum();
   }).catch(function (err) {
     console.log('err', err);
-    session.endDialog("Lỗi rồi");
+    session.endDialog('Lỗi rồi');
     clearNum();
   });
 }

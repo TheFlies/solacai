@@ -4,16 +4,16 @@
  */
 class EntitiesProcessor {
   constructor() {
-      this._handlers = [];
-      this.register = this.register.bind(this);
-      this.process = this.process.bind(this);
+    this._handlers = [];
+    this.register = this.register.bind(this);
+    this.process = this.process.bind(this);
   }
 
   register(handler, computeMessage) {
-      this._handlers.push({
-        computeMessage: computeMessage || handler.computeMessage,
-        action: handler.action
-      });
+    this._handlers.push({
+      computeMessage: computeMessage || handler.computeMessage,
+      action: handler.action
+    });
   }
 
   process(session, data) {
@@ -26,7 +26,7 @@ class EntitiesProcessor {
           return handler.action(session, msg);
         }
       } catch (e) {
-        console.log(`Skipping through next handler. `+e.message);
+        console.log(`Skipping through next handler. ${e.message}`);
         // ignored
       }
     }
@@ -53,6 +53,8 @@ const validateWitAIMsg = (data, entity, value) => {
   }
 
   return e;
-}
+};
 
-module.exports = { EntitiesProcessor, validateWitAIMsg };
+module.exports = {
+  EntitiesProcessor, validateWitAIMsg 
+};
