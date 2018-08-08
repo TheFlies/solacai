@@ -7,7 +7,7 @@ function action(session, message) {
   console.log('xin số lotte');
   api.get().then(function (res) {
     console.log(`html: ${res}`);
-    session.endDialog(res);
+    session.endDialog(res.replace('</br>', '\n'));
   }).catch(function (err) {
     console.log('err', err);
     session.endDialog('Lỗi rồi');
