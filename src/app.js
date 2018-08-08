@@ -75,28 +75,28 @@ mongoClient.connect(uri).then((db) => {
   const computeMsgConversationGreeting = (data) => {
     validateWitAIMsg(data, 'conversation', 'conversation.greeting');
     return util.pickRan(replyDataSource.conversationGreeting);
-  }
+  };
 
   const computeMsgConversationBye = (data) => {
     validateWitAIMsg(data, 'conversation', 'conversation.bye');
     return util.pickRan(replyDataSource.conversationBye);
-  }
+  };
 
   const computeMsgConversationKhen = (data) => {
     validateWitAIMsg(data, 'conversation', 'conversation.khen');
     return util.pickRan(replyDataSource.conversationKhen);
-  }
+  };
 
   // entities processor
   const iProcessor = new EntitiesProcessor();
   // - complex command
   iProcessor.register(FindImgCmd);
   // - simple command
-  iProcessor.register(simpleProcessor, computeMsgDrinkLocation)
-  iProcessor.register(simpleProcessor, computeMsgSwearMe)
-  iProcessor.register(simpleProcessor, computeMsgConversationGreeting)
-  iProcessor.register(simpleProcessor, computeMsgConversationBye)
-  iProcessor.register(simpleProcessor, computeMsgConversationKhen)
+  iProcessor.register(simpleProcessor, computeMsgDrinkLocation);
+  iProcessor.register(simpleProcessor, computeMsgSwearMe);
+  iProcessor.register(simpleProcessor, computeMsgConversationGreeting);
+  iProcessor.register(simpleProcessor, computeMsgConversationBye);
+  iProcessor.register(simpleProcessor, computeMsgConversationKhen);
   // default - return confuse
   iProcessor.register(simpleProcessor, data => util.pickRan(replyDataSource.confuse));
 
@@ -106,7 +106,7 @@ mongoClient.connect(uri).then((db) => {
       // --------------- processing using available ML wit.ai
       witClient.message(msg, {})
         .then(function (res) {
-          iProcessor.process(session, res)
+          iProcessor.process(session, res);
         })
         .catch(function (err) {
           console.error('This should not happened, but seem we still having error.', err);
