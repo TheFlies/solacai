@@ -91,6 +91,7 @@ mongoClient.connect(uri).then((db) => {
   const iProcessor = new EntitiesProcessor();
   // - complex command
   iProcessor.register(FindImgCmd);
+  iProcessor.register(lottCmd);
   // - simple command
   iProcessor.register(simpleProcessor, computeMsgDrinkLocation);
   iProcessor.register(simpleProcessor, computeMsgSwearMe);
