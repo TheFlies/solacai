@@ -44,14 +44,13 @@ function getRandomArrayElements(arr, count) {
 function imagesResponsedHandler(session, images, log, num) {
   let defaultMsgs = [];
   if (images && images.items) {
-    let logic = log || 'random';
     let number = num || 1;
     if (number>images.items.length) {
       number = images.items.length;
     }
 
     let imgs;
-    switch (log) {
+    switch (logic) {
       case 'first':
         imgs = images.items.slice(0, number);
         break;
@@ -104,9 +103,7 @@ const computeMessage = (data) => {
       const number = data.entities.number
         .filter( q => q.confidence>0.8 )
         .map( q => parseInt(q.value))
-        .reduce((max, f) => {
-          return (f < max) ? max : f;
-        }, 0);
+        .reduce((max, f) => ((f < max) ? max : f), 0);
       
       if (number) {
         console.log('found number: '+number);

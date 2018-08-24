@@ -44,9 +44,7 @@ const validateWitAIMsg = (data, entity, value) => {
   if (!data || !data.entities || !data.entities[entity]) {
     throw new Error('This is not `' + entity + '` entity');
   }
-  const e = data.entities[entity].reduce((max, f) => {
-    return (f.confidence < max.confidence) ? f : max;
-  }, data.entities[entity][0]);
+  const e = data.entities[entity].reduce((max, f) => ((f.confidence < max.confidence) ? f : max), data.entities[entity][0]);
 
   if (!e || value != e['value']) {
     throw new Error('Not enough confidence or not ' + value);

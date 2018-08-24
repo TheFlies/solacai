@@ -1,12 +1,12 @@
 global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 
+const predictUrl = process.env.VIETLOFT_PREDICT_URL;
 const RestClient = require('another-rest-client');
-const api = new RestClient('https://lottery-211509.appspot.com/predict');
+const api = new RestClient(predictUrl);
 
 const validateWitAIMsg = require('./entities_processor').validateWitAIMsg;
 
-function action(session, message) {
-  console.log('xin số lotte');
+function action(session) {
   api.get().then(function (res) {
     console.log(`html: ${res}`);
     session.endDialog(res.replace('</br>', '\n'));

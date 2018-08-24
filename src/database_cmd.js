@@ -1,4 +1,4 @@
-//----------------------
+// ----------------------
 // The default data
 var drinkLocation = [
   'La Cà - Ngô Thị Thu Minh ố ô ỳe ye',
@@ -84,12 +84,12 @@ class DatabaseCmd {
           .then((res)=>{
             session.endDialog(JSON.stringify(res), null, 2);
           })
-          .catch((err)=>session.endDialog('lấy ko được data. code lại đi'));
+          .catch(()=>session.endDialog('lấy ko được data. code lại đi'));
         break;
       case 'add':
         let value = data.join(' ');
         this.save(collection, value).then((res)=>session.endDialog(JSON.stringify(res), null, 2))
-          .catch((err)=>session.endDialog('ko save được rồi'));
+          .catch(()=>session.endDialog('ko save được rồi'));
         break;
       default:
         session.endDialog('unknown command');
@@ -97,7 +97,7 @@ class DatabaseCmd {
     }
   }
 
-  list(c, q) {
+  list(c) {
     // TODO fix query
     return this._db.collection(c).find({}).toArray();
   }
@@ -111,7 +111,7 @@ class DatabaseCmd {
     Object.keys(data).forEach(val => {
       console.log(`${val} : ${data[val]}`);
       this._db.collection(val).find({}).toArray().then((res) => {
-        if (!res.length) this._db.collection(val).insert(data[val].map(s => {return {'value':s};}));
+        if (!res.length) this._db.collection(val).insert(data[val].map(s => ({'value' : s})));
         else
           data[val] = res.map(v => v.value);
       });

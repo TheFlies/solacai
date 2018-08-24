@@ -43,7 +43,7 @@ mongoClient.connect(uri).then((db) => {
     appPassword: process.env.MICROSOFT_APP_PASSWORD
   });
 
-  //-----------------------
+  // -----------------------
   // wit client
   const witClient = new Wit({
     accessToken: process.env.WIT_SERVER_ACCESS_TOKEN
@@ -99,7 +99,7 @@ mongoClient.connect(uri).then((db) => {
   iProcessor.register(simpleProcessor, computeMsgConversationBye);
   iProcessor.register(simpleProcessor, computeMsgConversationKhen);
   // default - return confuse
-  iProcessor.register(simpleProcessor, data => util.pickRan(replyDataSource.confuse));
+  iProcessor.register(simpleProcessor, () => util.pickRan(replyDataSource.confuse));
 
   // router
   const witAiHandler = {
@@ -178,7 +178,7 @@ mongoClient.connect(uri).then((db) => {
     router.handle(session, msg);
   });
 
-  bot.dialog('proactiveDialog', function (session, args) {
+  bot.dialog('proactiveDialog', function (session) {
 
     savedAddress = session.message.address;
 
@@ -199,7 +199,7 @@ mongoClient.connect(uri).then((db) => {
   }
 
   // handle the proactive initiated dialog
-  bot.dialog('survey', function (session, args, next) {
+  bot.dialog('survey', function (session) {
     if (session.message.text.match(/^(@bướm )?nghỉ đi$/i)) {
       session.send('Ôh, ngon rồi, em đi đây...');
       session.endDialog();
