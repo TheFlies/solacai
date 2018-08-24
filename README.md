@@ -3,7 +3,8 @@
 We training and support those intents (and their values):
 - drink (drink.location) (impled)
 - swear (swear.me,swear.other) (impled swear.me)
-- find (image) (not impled, use "tét hình "+query instead)
+- find (image)
+- find (vietloft - predict vietloft)
 - conversation (greeting)
 - massage_location (massage.location)
 - change_my_avatar (change.myavatar)
