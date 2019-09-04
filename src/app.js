@@ -49,8 +49,13 @@ mongoClient.connect(uri).then((db) => {
     accessToken: process.env.WIT_SERVER_ACCESS_TOKEN
   });
 
-  // Listen for messages from users 
-  server.post('/api/messages', connector.listen());
+  // Listen for messages from users
+  server.post('/api/messages', (req, res, next) => {
+    if (req.challenge) {
+      res.send(req.challenge)
+    }
+    next(!req.challenge)
+  }, connector.listen());
 
   const replyDataSource = databaseCmd.getData();
 
@@ -129,7 +134,7 @@ mongoClient.connect(uri).then((db) => {
 
       var msg = new builder.Message(session).text(' hướng dẫn đi sau nha :D.').attachments([card]);
       session.send(msg);
-      session.endDialog(`Gõ: 
+      session.endDialog(`Gõ:
 1. tét hình query : tìm hình trên gu gồ với \`\`\`query\`\`\`
 2. hép : hiện lên cái này
 3. vietlott: lấy số VietLott, trúng nhớ bao em nha
@@ -193,7 +198,7 @@ mongoClient.connect(uri).then((db) => {
     confirmPrompt: 'Anh có chắc hong? Hình như anh đang kẹt? Làm cái này là mất cái đang kẹt luôn á nha...'
   });
 
-  // initiate a dialog proactively 
+  // initiate a dialog proactively
   function startProactiveDialog(address) {
     bot.beginDialog(address, '*:survey');
   }
