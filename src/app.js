@@ -7,8 +7,12 @@ const builder = require('botbuilder')
 
 const Wit = require('node-wit').Wit
 
-// my commands
+
 const mongodb = require('mongodb')
+
+const slackConnector = require('./slack_bot')
+
+// my commands
 const FindImgCmd = require('./find_img_cmd')
 const DatabaseCmd = require('./database_cmd').DatabaseCmd
 const lottCmd = require('./lott_cmd')
@@ -53,15 +57,10 @@ mongoClient.connect(uri).then((db) => {
 
   // Listen for messages from users
   server.post('/api/messages',
-    (req, res, next) => {
-      if (req.body && req.body.challenge) {
-        res.send(req.body.challenge)
-        next(false)
-      } else {
-        next()
-      }
-    },
-    // connector.listen()
+    // me slack bot first
+    slackConnector.listen(),
+    // if slack bot can't serve, then ms-bot
+    connector.listen()
   )
 
   const replyDataSource = databaseCmd.getData()
