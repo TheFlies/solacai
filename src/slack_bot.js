@@ -12,7 +12,6 @@ const supportTypes = [
 const listen = () => {
   let verify = process.env.SLACK_VERIFICATION_TOKEN
   return (req, res, next) => {
-    console.log(btok)
     if (req.body && verify === req.body.token) {
       switch (req.body.event.type) {
         case supportTypes[0]:
@@ -25,8 +24,6 @@ const listen = () => {
           if (payload.event.type === 'app_mention' && 'bot_message' !== payload.event.subtype) {
             if (payload.event.text.includes('test')) {
               web.chat.postMessage({ channel: payload.event.channel, text: ' echo!' })
-                .then(() => console.log('sent'))
-                .catch(err => console.error(err))
             }
           }
           break
