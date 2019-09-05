@@ -74,7 +74,7 @@ mongoClient.connect(uri).then((db) => {
    * a Command which implement action(session, message) function. Read FindImgCmd as example.
    */
   const simpleProcessor = {
-    action: (session, msg) => session.endDialog(msg)
+    action: (producer, msg) => producer.send(msg)
   }
 
   const computeMsgDrinkLocation = (data) => {

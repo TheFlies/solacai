@@ -73,7 +73,7 @@ class DatabaseCmd {
     return data;
   }
 
-  action(session, msg) {
+  action(producer, msg) {
     let data = msg.split('db: ')[1].split(' ');
     let cmd = data.shift().trim();
     let collection = data.shift().trim();
@@ -82,17 +82,17 @@ class DatabaseCmd {
         this
           .list(collection, data)
           .then((res)=>{
-            session.endDialog(JSON.stringify(res), null, 2);
+            producer.send(JSON.stringify(res), null, 2);
           })
-          .catch(()=>session.endDialog('lấy ko được data. code lại đi'));
+          .catch(()=>producer.send('lấy ko được data. code lại đi'));
         break;
       case 'add':
         let value = data.join(' ');
-        this.save(collection, value).then((res)=>session.endDialog(JSON.stringify(res), null, 2))
-          .catch(()=>session.endDialog('ko save được rồi'));
+        this.save(collection, value).then((res)=>producer.send(JSON.stringify(res), null, 2))
+          .catch(()=>producer.send('ko save được rồi'));
         break;
       default:
-        session.endDialog('unknown command');
+        session.send('unknown command');
         break;
     }
   }
