@@ -22,6 +22,10 @@ const util = require('./util')
 
 // message router
 const MessageRouter = require('./message_router')
+
+// message producer
+const MessageProducer = require('./msg_producer').MessageProducer
+
 // wit.ai entities processor
 const EntitiesProcessor = require('./entities_processor').EntitiesProcessor
 const validateWitAIMsg = require('./entities_processor').validateWitAIMsg
@@ -55,15 +59,15 @@ mongoClient.connect(uri).then((db) => {
     accessToken: process.env.WIT_SERVER_ACCESS_TOKEN
   })
 
+  const replyDataSource = databaseCmd.getData()
+
   // Listen for messages from users
   server.post('/api/messages',
     // me slack bot first
-    slackConnector.listen(),
+    slackConnector.listen(replyDataSource),
     // if slack bot can't serve, then ms-bot
     connector.listen()
   )
-
-  const replyDataSource = databaseCmd.getData()
 
   /**
    * a simple processor that end the session with message. For complex processor, create
@@ -114,38 +118,36 @@ mongoClient.connect(uri).then((db) => {
 
   // router
   const witAiHandler = {
-    action: (session, msg) => {
+    action: (producer, msg) => {
       // --------------- processing using available ML wit.ai
       witClient.message(msg, {})
         .then(function (res) {
-          iProcessor.process(session, res)
+          iProcessor.process(producer, res)
         })
         .catch(function (err) {
           console.error('This should not happened, but seem we still having error.', err)
-          session.endDialog(util.pickRan(replyDataSource.bug) + '<br/>\n' + JSON.stringify(err, Object.keys(err)))
+          producer.send(util.pickRan(replyDataSource.bug) + '<br/>\n' + JSON.stringify(err, Object.keys(err)))
         })
     }
   }
 
   const helpHandler = {
-    action: (session, msg) => {
-
+    action: (producer, msg) => {
       // Send a greeting and show help.
-      var card = new builder.ThumbnailCard(session)
+      var card = new builder.ThumbnailCard(producer.get())
         .title('Con bướm xinh')
         .subtitle('Con bướm xinh con bướm xinh, con bướm đa tình.')
         .images([
           builder.CardImage.create(session, 'http://9mobi.vn/cf/images/2015/03/nkk/hinh-nen-co-gai-cho-dien-thoai-6.jpg')
         ])
 
-      var msg = new builder.Message(session).text(' hướng dẫn đi sau nha :D.').attachments([card])
-      session.send(msg)
-      session.endDialog(`Gõ:
-1. tét hình query : tìm hình trên gu gồ với \`\`\`query\`\`\`
-2. hép : hiện lên cái này
-3. vietlott: lấy số VietLott, trúng nhớ bao em nha
-3. tùm lum cũng được em trả lời nha mấy anh
-                        `)
+      var msg = new builder.Message(producer.get()).text(' hướng dẫn đi sau nha :D.').attachments([card])
+      producer.send([msg, `Gõ:
+      1. tét hình query : tìm hình trên gu gồ với \`\`\`query\`\`\`
+      2. hép : hiện lên cái này
+      3. vietlott: lấy số VietLott, trúng nhớ bao em nha
+      3. tùm lum cũng được em trả lời nha mấy anh
+                              `])
     }
   }
 
@@ -181,12 +183,11 @@ mongoClient.connect(uri).then((db) => {
 
   // ------------ Bot default handler
   bot.dialog('default', function (session) {
-    // console.log('Message json: \n: '+JSON.stringify(session.message, null, 1))
     let msg = session.message.text
     let entities = session.message.entities
     let sourceEvent = session.message.sourceEvent
-    msg = removeBotInformation(session.message.address.bot, entities, sourceEvent, msg)
-    router.handle(session, msg)
+    msg = util.removeBotInformation(session.message.address.bot, entities, sourceEvent, msg)
+    router.handle(new MessageProducer(session, 'msbot', replyDataSource, session.message), msg)
   })
 
   bot.dialog('proactiveDialog', function (session) {
@@ -218,30 +219,4 @@ mongoClient.connect(uri).then((db) => {
       session.send('Muốn nghỉ thì gõ \'@bướm nghỉ đi\' nha mấy anh')
     }
   })
-
-  function removeBotInformation(bot, entities, sourceEvent, msg) {
-    let ret = msg
-    if (bot) {
-      if (entities && sourceEvent && sourceEvent.text) {
-        let st = sourceEvent.text
-        if (st.replace(/<\/?[^>]+(>|$)/g, '') === ret) {
-          let hashAt = entities.filter((m) => m.mentioned && bot.id === m.mentioned.id)[0]
-          if (hashAt) {
-            console.log('Oh we got mentioned - ' + JSON.stringify(hashAt))
-            ret = st.replace(hashAt.text, '').replace(/<\/?[^>]+(>|$)/g, '')
-            console.log('cleaned return value: ' + ret)
-          }
-        }
-      }
-
-      return ret
-        .replace('@' + bot.name, '')
-        .replace('@' + bot.id, '')
-        .replace('Edited previous message:', '')
-        .replace(/<e_m[^>]*>.*<\/e_m>/, '')
-        .replace('@Ruồi Sờ Là Cai', '').trim() // still need to remove cached old name
-    }
-
-    return msg
-  }
 })

@@ -109,7 +109,6 @@ class DatabaseCmd {
   initialize() {
 
     Object.keys(data).forEach(val => {
-      console.log(`${val} : ${data[val]}`);
       this._db.collection(val).find({}).toArray().then((res) => {
         if (!res.length) this._db.collection(val).insert(data[val].map(s => ({'value' : s})));
         else

@@ -16,11 +16,11 @@ class MessageRouter {
     });
   }
 
-  handle(session, message) {
+  handle(producer, message) {
     for (let handler of this._handlers) {
       try {
         if (message && message.match(handler.pattern)) {
-          return handler.action(session, message);
+          return handler.action(producer, message);
         }
       } catch (e) {
         console.error(`Error occured on message ${message}! Skipping through next handler.`, e);
