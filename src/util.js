@@ -42,5 +42,6 @@ function removeBotInformation(bot, entities, sourceEvent, msg) {
 }
 
 module.exports = {
-  pickRan
+  pickRan,
+  removeBotInformation
 };
