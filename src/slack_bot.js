@@ -58,6 +58,8 @@ mainProcessor.register(slackProcessor, computeMsgConversationGreeting)
 mainProcessor.register(slackProcessor, computeMsgConversationBye)
 mainProcessor.register(slackProcessor, computeMsgConversationKhen)
 
+mainProcessor.register(slackProcessor, (_, answers) => util.pickRan(answers.confuse))
+
 // let atok = process.env.SLACK_AUTH_TOKEN
 let btok = process.env.SLACK_BOT_USER_AUTH_TOKEN
 const web = new WebClient(btok)
