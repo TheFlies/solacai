@@ -71,7 +71,6 @@ class MessageProducer {
   }
 
   _mssend(msgs, end) {
-    let sfunc = end ? this._producer.send : this._producer.endDialog
     if (typeof msgs === 'array') {
       let lastIdx = msgs.length - 1
       for (let i = 0; i < msgs.length - 1; i++) {
@@ -79,7 +78,8 @@ class MessageProducer {
       }
       this._producer.endDialog(msgs[lastIdx])
     } else {
-      sfunc(msgs)
+      this._producer.sfunc = end ? this._producer.send : this._producer.endDialog
+      this._producer.sfunc(msgs)
     }
   }
 
