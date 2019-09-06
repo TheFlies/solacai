@@ -187,7 +187,7 @@ mongoClient.connect(uri).then((db) => {
     let entities = session.message.entities
     let sourceEvent = session.message.sourceEvent
     msg = util.removeBotInformation(session.message.address.bot, entities, sourceEvent, msg)
-    router.handle(new MessageProducer(session, 'msbot', replyDataSource, session.message), msg)
+    router.handle(new MessageProducer(bot, 'msbot', replyDataSource, session.message), msg)
   })
 
   bot.dialog('proactiveDialog', function (session) {
