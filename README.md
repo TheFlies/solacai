@@ -1,5 +1,7 @@
 # solacai
 
+> Deprecated. I rewrite this at https://github.com/gaconkzk/buom
+
 We training and support those intents (and their values):
 - drink (drink.location) (impled)
 - swear (swear.me,swear.other) (impled swear.me)
